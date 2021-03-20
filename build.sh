@@ -48,8 +48,11 @@ jpackage --name I2P --app-version $I2P_VERSION \
         --resource-dir build \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
 
+echo "adding pkg-temp to resources"
 cp -R $I2P_PKG/* I2P.app/Contents/Resources
-rm -rf I2P.app/Contents/Resources/lib
+for i in i2prouter lib locale man wrapper.config eepget runplain.sh postinstall.sh osid; do
+    rm -rf I2P.app/Contents/Resources/$i
+done
 
 codesign --force -d --deep -f \
     -s $I2P_SIGNER \
