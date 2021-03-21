@@ -2,7 +2,7 @@
 set -e 
 
 # old javas output version to stderr and don't support --version
-JAVA=$(java -version 2>&1 | tr -d 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n' | cut -d ' ' -f 2 | cut -d '.' -f 1 | tr -d '\n\t ')
+JAVA=$(java --version 2>&1 | tr -d 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n' | cut -d ' ' -f 2 | cut -d '.' -f 1 | tr -d '\n\t ')
 
 if [ -z "$JAVA" ]; then
 	echo "Failed to parse Java version, java is:"
@@ -17,6 +17,11 @@ fi
 
 if [ -z "${I2P_SIGNER}" ]; then
     echo "I2P_SIGNER variable not set, can't sign.  Aborting..."
+    exit 1
+fi
+
+if [ -z ${I2P_BUILD_NUMBER} ]; then
+    echo "please set the I2P_BUILD_NUMBER variable to some integer >= 1"
     exit 1
 fi
 
@@ -40,16 +45,19 @@ cd build
 jar -cf launcher.jar net
 cd ..
 
-if [ -z $I2P_VERSION ]; then 
-    I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
-fi
-echo "preparing to invoke jpackage for I2P version $I2P_VERSION"
+I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
+echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD_NUMBER"
 
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
 cp $I2P_PKG/LICENSE.txt build
 
-jpackage --name I2P --app-version $I2P_VERSION \
+cp resources/Info.plist.template build/Info.plist
+sed -i.bak "s/I2P_VERSION/$I2P_VERSION/g" build/Info.plist
+sed -i.bak "s/I2P_BUILD_NUMBER/$I2P_BUILD_NUMBER/g" build/Info.plist
+rm build/*.bak
+
+jpackage --name I2P  \
         --type app-image \
         --verbose \
         --resource-dir build \
