@@ -54,7 +54,8 @@ for lib in *.jnilib; do
     codesign --force -s $I2P_SIGNER -v $lib
     jar uf jbigi.jar $lib
 done
-cp jbigi/jbigi.jar build
+cp jbigi.jar ../build
+cd ..
 
 I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
 echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD_NUMBER"
@@ -82,6 +83,8 @@ done
 cp $HERE/resources/GPLv2+CE.txt I2P.app/Contents/Resources/licenses/LICENSE-JRE.txt
 
 codesign --force -d --deep -f \
+    --options=runtime \
+    --entitlements resources/entitlements.xml \
     -s $I2P_SIGNER \
     --verbose=4 \
     I2P.app
