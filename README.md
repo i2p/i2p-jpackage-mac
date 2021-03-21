@@ -33,11 +33,13 @@ In order to build an AppBundle that can work from anywhere, it is necessary to u
 xcrun altool --eval-app --primary-bundle-id net.i2p.router -u <your Apple id> -f <name of the .dmg file>
 ```
 This will ask you for the password you generated in step 1 and will return a long UUID string you can use to check the progress.
+
 3. Periodically execute the following to check the progress of the notarisation:
 ```
-xcrun altool --eval-info <the long UUID string> -u <your Apple id>`
+xcrun altool --eval-info <the long UUID string> -u <your Apple id>
+````
 4. If that returns success, staple the notarization to the dmg:
 ```
 xcrun stapler staple <name of the .dmg>
-
+```
 
