@@ -2,6 +2,7 @@
 
 rm -rfv \
 	build \
+    jbigi \
 	eventlog.txt \
 	hostsdb.blockfile \
 	I2P.app \

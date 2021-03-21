@@ -2,6 +2,11 @@
 
 JPackage scripts for packaging I2P on a Mac.
 
+### Requirements
+
+* Java 16 or newer.  Even though JPackage existed since 14, it was broken.
+* An Apple signing certificate.  The JBigi libs and the final bundle MUST be signed or users will get a scary warning.
+
 ### Building
 
 1. Clone `i2p.i2p` as a sibling to this module

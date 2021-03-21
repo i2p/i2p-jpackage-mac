@@ -45,6 +45,17 @@ cd build
 jar -cf launcher.jar net
 cd ..
 
+echo "signing jbigi libs"
+mkdir jbigi
+cp $I2P_JARS/jbigi.jar jbigi
+cd jbigi
+unzip jbigi.jar
+for lib in *.jnilib; do
+    codesign --force -s $I2P_SIGNER -v $lib
+    jar uf jbigi.jar $lib
+done
+cp jbigi/jbigi.jar build
+
 I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
 echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD_NUMBER"
 
