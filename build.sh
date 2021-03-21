@@ -1,7 +1,14 @@
 #!/bin/bash
 set -e 
 
-JAVA=$(java --version | tr -d 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n' | cut -d ' ' -f 2 | cut -d '.' -f 1 | tr -d '\n\t ')
+# old javas output version to stderr and don't support --version
+JAVA=$(java -version 2>&1 | tr -d 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n' | cut -d ' ' -f 2 | cut -d '.' -f 1 | tr -d '\n\t ')
+
+if [ -z "$JAVA" ]; then
+	echo "Failed to parse Java version, java is:"
+	java -version
+	exit 1
+fi
 
 if [ "$JAVA" -lt "16" ]; then
 	echo "Java 16+ must be used to compile with jpackage on Mac, java is $JAVA"
@@ -53,6 +60,7 @@ cp -R $I2P_PKG/* I2P.app/Contents/Resources
 for i in i2prouter lib locale man wrapper.config eepget runplain.sh postinstall.sh osid; do
     rm -rf I2P.app/Contents/Resources/$i
 done
+cp $HERE/resources/GPLv2+CE.txt I2P.app/Contents/Resources/licenses/LICENSE-JRE.txt
 
 codesign --force -d --deep -f \
     -s $I2P_SIGNER \
