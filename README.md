@@ -12,7 +12,7 @@ JPackage scripts for packaging I2P on a Mac.
 1. Clone `i2p.i2p` as a sibling to this module
 1. Build it with `ant clean preppkg-osx-only`
 1. Set the `I2P_SIGNER` environment variable to a string identifying the signer.
-1. Set the `I2P_BUILD_VERSION` environment variable to some integer >= 1
+1. Set the `I2P_BUILD_NUMBER` environment variable to some integer >= 1
 1. Run `build.sh`
 
 ### How does it work
