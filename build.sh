@@ -70,6 +70,8 @@ sed -i.bak "s/I2P_BUILD_NUMBER/$I2P_BUILD_NUMBER/g" build/Info.plist
 rm build/*.bak
 
 jpackage --name I2P  \
+        --java-options "-Xmx512m" \
+        --java-options "--illegal-access=permit" \
         --type app-image \
         --verbose \
         --resource-dir build \
