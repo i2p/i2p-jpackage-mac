@@ -26,8 +26,15 @@ public class MacLauncher {
         System.setProperty("mac.bundle.location", bundleLocation.getAbsolutePath());
         System.setProperty("router.pid", String.valueOf(ProcessHandle.current().pid()));
 
-        System.load(resources.getAbsolutePath() + "/libMacLauncher.jnilib");
-        disableAppNap();
+        try {
+            System.load(resources.getAbsolutePath() + "/libMacLauncher.jnilib");
+            disableAppNap();
+        } catch (Throwable bad) {
+            // this is pretty bad - I2P is very slow if AppNap kicks in.
+            // TODO: hook up to a console warning or similar.
+            bad.printStackTrace(); 
+        }
+
         RouterLaunch.main(args);
     }
 
