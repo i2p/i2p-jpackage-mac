@@ -2,6 +2,7 @@
 
 rm -rfv \
 	build \
+    tmp \
     jbigi \
 	eventlog.txt \
 	hostsdb.blockfile \

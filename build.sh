@@ -68,12 +68,15 @@ echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD
 
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
-# cp I2P-dmg-setup.scpt build/
 cp $I2P_PKG/LICENSE.txt build
 
 cp resources/Info.plist.template build/Info.plist
 sed -i.bak "s/I2P_VERSION/$I2P_VERSION/g" build/Info.plist
 sed -i.bak "s/I2P_BUILD_NUMBER/$I2P_BUILD_NUMBER/g" build/Info.plist
+
+cp resources/I2P-dmg-setup.scpt.template build/I2P-dmg-setup.scpt
+sed -i.bak "s@__HERE__@${HERE}@g" build/I2P-dmg-setup.scpt
+
 rm build/*.bak
 
 jpackage --name I2P  \
@@ -105,7 +108,7 @@ codesign --force -d --deep -f \
     I2P.app
 
 jpackage --name I2P --app-image I2P.app --app-version $I2P_VERSION \
-        --verbose \
+        --verbose --temp tmp \
         --license-file build/LICENSE.txt \
         --resource-dir build
 
