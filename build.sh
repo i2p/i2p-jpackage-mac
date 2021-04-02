@@ -25,6 +25,9 @@ if [ -z ${I2P_BUILD_NUMBER} ]; then
     exit 1
 fi
 
+JAVA_HOME="$(/usr/libexec/java_home)"
+echo "JAVA_HOME is $JAVA_HOME"
+
 echo "cleaning"
 ./clean.sh
 
@@ -45,6 +48,9 @@ cd build
 jar -cf launcher.jar net
 cd ..
 
+echo "compiling native lib"
+cc -mmacosx-version-min=10.9 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/darwin" -Ic -o build/libMacLauncher.jnilib -shared c/net_i2p_router_MacLauncher.c 
+
 echo "signing jbigi libs"
 mkdir jbigi
 cp $I2P_JARS/jbigi.jar jbigi
@@ -62,6 +68,7 @@ echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD
 
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
+# cp I2P-dmg-setup.scpt build/
 cp $I2P_PKG/LICENSE.txt build
 
 cp resources/Info.plist.template build/Info.plist
@@ -83,9 +90,11 @@ for i in i2prouter lib locale man wrapper.config eepget runplain.sh postinstall.
     rm -rf I2P.app/Contents/Resources/$i
 done
 cp $HERE/resources/GPLv2+CE.txt I2P.app/Contents/Resources/licenses/LICENSE-JRE.txt
+cp $HERE/build/libMacLauncher.jnilib I2P.app/Contents/Resources
 
 echo "signing the runtime libraries"
 find I2P.app -name *.dylib -exec codesign --force -s $I2P_SIGNER -v '{}' \;
+find I2P.app -name *.jnilib -exec codesign --force -s $I2P_SIGNER -v '{}' \;
 
 echo "signing the bundle"
 codesign --force -d --deep -f \

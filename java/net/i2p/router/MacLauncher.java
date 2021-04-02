@@ -26,6 +26,10 @@ public class MacLauncher {
         System.setProperty("mac.bundle.location", bundleLocation.getAbsolutePath());
         System.setProperty("router.pid", String.valueOf(ProcessHandle.current().pid()));
 
+        System.load(resources.getAbsolutePath() + "/libMacLauncher.jnilib");
+        disableAppNap();
         RouterLaunch.main(args);
     }
+
+    private static native void disableAppNap();
 }
