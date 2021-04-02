@@ -9,7 +9,7 @@ tell application "Finder"
   set statusbar visible of theWindow to 0
 
   -- size of window should fit the size of background
-  set the bounds of theWindow to {400, 100, 920, 440}
+  set the bounds of theWindow to {400, 100, 1020, 440}
 
   set theViewOptions to a reference to the icon view options of theWindow
   set arrangement of theViewOptions to not arranged
@@ -24,10 +24,10 @@ tell application "Finder"
     set theFilePath to POSIX path of theFile
     if theFilePath is "/Applications" then
       -- Position install location
-      set position of item theFile of theWindow to {390, 130}
+      set position of item theFile of theWindow to {440, 130}
     else
       -- Position application or runtime
-      set position of item theFile of theWindow to {120, 130}
+      set position of item theFile of theWindow to {150, 130}
     end if
   end repeat
 
