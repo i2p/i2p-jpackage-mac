@@ -5,6 +5,7 @@ import java.util.*;
 import net.i2p.*;
 import net.i2p.app.*;
 import net.i2p.update.*;
+import net.i2p.crypto.*;
 
 /**
  * Launches a router from a Mac App Bundle.  Uses Java 9 APIs.
@@ -65,7 +66,7 @@ public class MacLauncher {
             sleep(1000);
         }
         
-        // and then register the UPP.
+        um.register(new MacUpdateProcessor(ctx), UpdateType.ROUTER_SIGNED_SU3, SU3File.TYPE_DMG);
     };
 
     private static void sleep(int millis) {
