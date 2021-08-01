@@ -20,6 +20,11 @@ if [ -z "${I2P_SIGNER}" ]; then
     exit 1
 fi
 
+if [ -z ${I2P_VERSION} ]; then
+    echo "I2P_VERSION not set, aborting"
+    exit 1
+fi
+
 if [ -z ${I2P_BUILD_NUMBER} ]; then
     echo "please set the I2P_BUILD_NUMBER variable to some integer >= 1"
     exit 1
@@ -43,9 +48,12 @@ cd java
 javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java
 cd ..
 
+echo "copying mac-update.sh"
+cp bash/mac-update.sh build
+
 echo "building launcher.jar"
 cd build
-jar -cf launcher.jar net
+jar -cf launcher.jar net mac-update.sh
 cd ..
 
 echo "compiling native lib"
