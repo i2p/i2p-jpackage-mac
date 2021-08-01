@@ -2,6 +2,9 @@ package net.i2p.router;
 
 import java.io.*;
 import java.util.*;
+import net.i2p.*;
+import net.i2p.app.*;
+import net.i2p.update.*;
 
 /**
  * Launches a router from a Mac App Bundle.  Uses Java 9 APIs.
@@ -35,8 +38,41 @@ public class MacLauncher {
             bad.printStackTrace(); 
         }
 
+
+        Thread registrationThread = new Thread(REGISTER_UPP);
+        registrationThread.setName("UPP Registration");
+        registrationThread.setDaemon(true);
+        registrationThread.start();
+
         RouterLaunch.main(args);
     }
 
     private static native void disableAppNap();
+
+    private static final Runnable REGISTER_UPP = () -> {
+
+        // first wait for the RouterContext to appear
+        RouterContext ctx;
+        while ((ctx = (RouterContext) RouterContext.getCurrentContext()) == null) {
+            sleep(1000);
+        }
+
+        // then wait for the update manager
+        ClientAppManager cam = ctx.clientAppManager();
+        UpdateManager um;
+        while ((um = (UpdateManager) cam.getRegisteredApp(UpdateManager.APP_NAME)) == null) {
+            sleep(1000);
+        }
+        
+        // and then register the UPP.
+    };
+
+    private static void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException bad) {
+            bad.printStackTrace();
+            throw new RuntimeException(bad);
+        }
+    }
 }
