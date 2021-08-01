@@ -42,10 +42,10 @@ I2P_PKG=$HERE/../i2p.i2p/pkg-temp
 
 mkdir build
 
-echo "compiling custom launcher"
+echo "compiling custom launcher and update processor"
 cp $I2P_JARS/*.jar build
 cd java
-javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java
+javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java net/i2p/update/*.java
 cd ..
 
 echo "copying mac-update.sh"

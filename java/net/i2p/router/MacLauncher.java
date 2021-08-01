@@ -28,6 +28,7 @@ public class MacLauncher {
         System.setProperty("i2p.dir.base", resources.getAbsolutePath());
         System.setProperty("mac.bundle.location", bundleLocation.getAbsolutePath());
         System.setProperty("router.pid", String.valueOf(ProcessHandle.current().pid()));
+        // TODO: find a clean way to set the update url
 
         try {
             System.load(resources.getAbsolutePath() + "/libMacLauncher.jnilib");
