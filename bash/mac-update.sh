@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ =z $I2P_PID ]; then
+if [ -z $I2P_PID ]; then
     echo "I2P_PID not set"
     exit 1
 fi
