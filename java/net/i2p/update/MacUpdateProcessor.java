@@ -52,7 +52,7 @@ public class MacUpdateProcessor implements UpdatePostProcessor {
         
 
         var dmg = new File(workDir, "I2P-" + version + ".dmg");
-        if (!FileUtil.copy(file,dmg,true,false))
+        if (!FileUtil.rename(file,dmg))
             throw new IOException("Couldn't copy extracted update");
 
         this.version = version;
