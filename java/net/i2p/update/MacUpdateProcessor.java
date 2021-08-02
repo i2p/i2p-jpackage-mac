@@ -29,7 +29,7 @@ public class MacUpdateProcessor implements UpdatePostProcessor {
     public void updateDownloadedandVerified(UpdateType type, int fileType, String version, File file) throws IOException {
         log.info("Got an update to post-process");
 
-        if (type != UpdateType.ROUTER_SIGNED_SU3) {
+        if (type != UpdateType.ROUTER_SIGNED_SU3 || type != UpdateType.ROUTER_DEV_SU3) {
             log.warn("Unsupported update type " + type);
             return;
         }

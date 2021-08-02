@@ -67,6 +67,7 @@ public class MacLauncher {
         }
         
         um.register(new MacUpdateProcessor(ctx), UpdateType.ROUTER_SIGNED_SU3, SU3File.TYPE_DMG);
+        um.register(new MacUpdateProcessor(ctx), UpdateType.ROUTER_DEV_SU3, SU3File.TYPE_DMG);
     };
 
     private static void sleep(int millis) {
