@@ -53,5 +53,7 @@ echo "unmounting and cleaning up"
 hdiutil detach mount_point
 rm -f I2P.cdr "${UPDATE_DMG}"
 
-echo "launching I2P"
-open "${BUNDLE_HOME}"/I2P.app
+if [ ! -z $RESTART_I2P ]; then
+    echo "launching I2P"
+    open "${BUNDLE_HOME}"/I2P.app
+fi

@@ -26,6 +26,11 @@ class MacUpdateProcess implements Runnable {
         env.put("I2P_PID", System.getProperty("router.pid"));
         env.put("I2P_VERSION", version);
         env.put("BUNDLE_HOME", System.getProperty("mac.bundle.location"));
+        env.remove("RESTART_I2P");
+
+        int exitCode = ctx.router().scheduledGracefulExitCode();
+        if (exitCode == Router.EXIT_HARD_RESTART || exitCode == Router.EXIT_GRACEFUL_RESTART)
+            env.put("RESTART_I2P","true");
 
         try {
             var process = pb.
