@@ -103,6 +103,7 @@ for i in i2prouter lib locale man wrapper.config eepget runplain.sh postinstall.
 done
 cp $HERE/resources/GPLv2+CE.txt I2P.app/Contents/Resources/licenses/LICENSE-JRE.txt
 cp $HERE/build/libMacLauncher.jnilib I2P.app/Contents/Resources
+cp $HERE/resources/router.config I2P.app/Contents/Resources
 
 echo "signing the runtime libraries"
 find I2P.app -name *.dylib -exec codesign --force -s $I2P_SIGNER -v '{}' \;
