@@ -90,7 +90,9 @@ rm build/*.bak
 
 jpackage --name I2P  \
         --java-options "-Xmx512m" \
-        --java-options "--illegal-access=permit" \
+        --java-options "--add-opens java.base/java.lang=ALL-UNNAMED" \
+        --java-options "--add-opens java.base/sun.nio.fs=ALL-UNNAMED" \
+        --java-options "--add-opens java.base/java.nio=ALL-UNNAMED" \
         --type app-image \
         --verbose \
         --resource-dir build \
