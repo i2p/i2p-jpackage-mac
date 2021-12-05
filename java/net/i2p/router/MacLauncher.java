@@ -23,10 +23,12 @@ public class MacLauncher {
         String path = System.getProperty(APP_PATH,"unknown");
         File f = new File(path);
         File contents = f.getParentFile().getParentFile();
+        File app = new File(contents, "app");
         File resources = new File(contents, "Resources");
         File bundleLocation = contents.getParentFile().getParentFile();
 
         System.setProperty("i2p.dir.base", resources.getAbsolutePath());
+        System.setProperty("i2p.dir.lib", app.getAbsolutePath());
         System.setProperty("mac.bundle.location", bundleLocation.getAbsolutePath());
         System.setProperty("router.pid", String.valueOf(ProcessHandle.current().pid()));
 
