@@ -60,8 +60,13 @@ public class MacLauncher {
             sleep(1000);
         }
 
+        // then wait for ClientAppManager
+        ClientAppManager cam;
+        while ((cam = ctx.clientAppManager()) == null) {
+            sleep(1000);
+        }
+
         // then wait for the update manager
-        ClientAppManager cam = ctx.clientAppManager();
         UpdateManager um;
         while ((um = (UpdateManager) cam.getRegisteredApp(UpdateManager.APP_NAME)) == null) {
             sleep(1000);
