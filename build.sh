@@ -76,6 +76,7 @@ echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
 cp $I2P_PKG/LICENSE.txt build
+cat resources/License-JRE-snippet.txt >> build/LICENSE.txt
 cp resources/I2P-background.tiff build
 
 cp resources/Info.plist.template build/Info.plist

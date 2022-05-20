@@ -1,0 +1,11 @@
+
+
+Java Runtime Environment
+------------------------
+This Mac bundle comes with a built-in Java Runtime
+Environment which is licensed under GPLv2+Classpath
+exception.
+
+You can find the text of this license in
+Source tree - resources/GPLv2+CE.txt
+I2P.app bundle - Contents/Resources/licenses/LICENSE-JRE.txt
