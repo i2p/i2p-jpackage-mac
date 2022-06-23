@@ -35,6 +35,7 @@ echo "JAVA_HOME is $JAVA_HOME"
 echo "cleaning"
 ./clean.sh
 
+ARCH=$(uname -m)
 HERE=$PWD
 I2P_JARS=$HERE/../i2p.i2p/pkg-temp/lib
 I2P_PKG=$HERE/../i2p.i2p/pkg-temp
@@ -58,17 +59,21 @@ cd ..
 echo "compiling native lib"
 cc -v -Wl,-lobjc -mmacosx-version-min=10.9 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/darwin" -Ic -o build/libMacLauncher.jnilib -shared c/net_i2p_router_MacLauncher.c 
 
-echo "signing jbigi libs"
-mkdir jbigi
-cp $I2P_JARS/jbigi.jar jbigi
-cd jbigi
-unzip jbigi.jar
-for lib in *.jnilib; do
-    codesign --force -s $I2P_SIGNER -v $lib
-    jar uf jbigi.jar $lib
-done
-cp jbigi.jar ../build
-cd ..
+if [ $ARCH == "arm64" ]; then
+    echo "skipping jbigi"
+else
+    echo "signing jbigi libs"
+    mkdir jbigi
+    cp $I2P_JARS/jbigi.jar jbigi
+    cd jbigi
+    unzip jbigi.jar
+    for lib in *.jnilib; do
+        codesign --force -s $I2P_SIGNER -v $lib
+        jar uf jbigi.jar $lib
+    done
+    cp jbigi.jar ../build
+    cd ..
+fi
 
 I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
 echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD_NUMBER"
