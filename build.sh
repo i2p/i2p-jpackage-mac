@@ -111,7 +111,11 @@ done
 cp $HERE/resources/GPLv2+CE.txt I2P.app/Contents/Resources/licenses/LICENSE-JRE.txt
 cp $I2P_PKG/licenses/* I2P.app/Contents/Resources/licenses/
 cp $HERE/build/libMacLauncher.jnilib I2P.app/Contents/Resources
-cp $HERE/resources/router.config I2P.app/Contents/Resources
+if [ $ARCH == "arm64" ]; then
+    cp $HERE/resources/router.config.arm4 I2P.app/Contents/Resources/router.config
+else
+    cp $HERE/resources/router.config I2P.app/Contents/Resources
+fi
 cp $HERE/resources/*.crt I2P.app/Contents/Resources/certificates/router
 
 echo "signing the runtime libraries"
