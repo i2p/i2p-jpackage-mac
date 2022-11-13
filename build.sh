@@ -34,6 +34,10 @@ if [ -z ${I2P_BUILD_NUMBER} ]; then
     exit 1
 fi
 
+if [ -z ${JAVA_HOME} ]; then
+    JAVA_HOME=$(/usr/libexec/java_home)
+fi
+
 echo "JAVA_HOME is $JAVA_HOME"
 
 echo "cleaning"
