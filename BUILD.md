@@ -53,3 +53,63 @@ brew install ant gettext gradle
 
 Remember to run `brew update` and `brew upgrade ant gettext gradle` before
 rebuilding I2P.
+
+Building the I2P Router Dependencies and the Package
+----------------------------------------------------
+
+Once you have all that installed you're ready to build the core I2P router
+libraries and package the application. This can all be automated with the use
+of `build.sh`. In order to do this successfully, you need to be able to sign
+OSX packages, using a certificate which you obtain from Apple itself. Obtaining
+that certificate is outside the scope of this document primarily because I do
+not have the ability to obtain such a certificate without sharing my identity
+with Apple.
+
+ - https://developer.apple.com/support/certificates/
+ - https://developer.apple.com/documentation/appstoreconnectapi/certificates
+
+In order to configure your release environment, you must set the following
+environment variables:
+
+ - `I2P_SIGNER` should be the [Apple Developer ID of the signer](https://developer.apple.com/support/developer-id/)
+ - `I2P_VERSION` should be the version of the I2P router that you want to use
+ - `I2P_BUILD_NUMBER` should be an integer greater than `0`.
+
+Ensure you have a copy of `i2p.i2p` checked out adjacent to the
+`i2p-jpackage-mac` directory, in the same parent. If this is your first time
+building the jpackage, run the following command:
+
+```sh
+git clone https://i2pgit.org/i2p-hackers/i2p.i2p
+```
+
+Change to the `i2p.i2p` directory and check out the release branch you want to
+build a package for, e.g. `i2p-1.9.0`
+
+```sh
+cd ../i2p.i2p
+git pull --tags
+git checkout i2p-1.9.0
+```
+
+Now that you have the right branch, clean and rebuild the core library:
+
+```sh
+ant clean preppkg-osx-only
+```
+
+Then, change back to the `i2p-jpackage-mac` directory:
+
+```sh
+cd ../i2p-jpackage-mac
+```
+
+Finally, run the `build.sh` script to generate the `.dmg` file.
+
+```sh
+./build.sh
+```
+
+Creating a new release
+----------------------
+
