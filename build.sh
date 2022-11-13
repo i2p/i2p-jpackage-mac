@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e 
 
+if [ -f config.sh ]; then
+    . config.sh
+fi
+
 # old javas output version to stderr and don't support --version
 JAVA=$(java --version 2>&1 | tr -d 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n' | cut -d ' ' -f 2 | cut -d '.' -f 1 | tr -d '\n\t ')
 
