@@ -20,7 +20,7 @@ if [ "$JAVA" -lt "16" ]; then
 fi
 
 if [ -z "${I2P_SIGNER}" ]; then
-    echo "I2P_SIGNER variable not set, can't sign.  Aborting..."
+    echo "I2P_SIGNER variable not set, can't sign. Script will terminate after unsigned app-image generation"
     exit 1
 fi
 
@@ -121,6 +121,16 @@ else
     cp $HERE/resources/router.config I2P.app/Contents/Resources
 fi
 cp $HERE/resources/*.crt I2P.app/Contents/Resources/certificates/router
+
+if [ -z $I2P_SIGNER ]; then
+    echo "I2P_SIGNER is unset, not proceeding to signing phase"
+    exit 0 
+fi
+
+if [ $I2P_SIGNER = signer@mail.i2p]; then
+    echo "I2P_SIGNER is unset, not proceeding to signing phase"
+    exit 0 
+fi
 
 echo "signing the runtime libraries"
 find I2P.app -name *.dylib -exec codesign --force -s $I2P_SIGNER -v '{}' \;
