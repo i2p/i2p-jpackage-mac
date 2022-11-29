@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e 
 
+if [ -f config.sh ]; then
+    . config.sh
+fi
+
 # old javas output version to stderr and don't support --version
 JAVA=$(java --version 2>&1 | tr -d 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n' | cut -d ' ' -f 2 | cut -d '.' -f 1 | tr -d '\n\t ')
 
@@ -16,7 +20,7 @@ if [ "$JAVA" -lt "16" ]; then
 fi
 
 if [ -z "${I2P_SIGNER}" ]; then
-    echo "I2P_SIGNER variable not set, can't sign.  Aborting..."
+    echo "I2P_SIGNER variable not set, can't sign. Script will terminate after unsigned app-image generation"
     exit 1
 fi
 
@@ -28,6 +32,10 @@ fi
 if [ -z ${I2P_BUILD_NUMBER} ]; then
     echo "please set the I2P_BUILD_NUMBER variable to some integer >= 1"
     exit 1
+fi
+
+if [ -z ${JAVA_HOME} ]; then
+    JAVA_HOME=$(/usr/libexec/java_home)
 fi
 
 echo "JAVA_HOME is $JAVA_HOME"
@@ -113,6 +121,16 @@ else
     cp $HERE/resources/router.config I2P.app/Contents/Resources
 fi
 cp $HERE/resources/*.crt I2P.app/Contents/Resources/certificates/router
+
+if [ -z $I2P_SIGNER ]; then
+    echo "I2P_SIGNER is unset, not proceeding to signing phase"
+    exit 0 
+fi
+
+if [ $I2P_SIGNER = signer@mail.i2p]; then
+    echo "I2P_SIGNER is unset, not proceeding to signing phase"
+    exit 0 
+fi
 
 echo "signing the runtime libraries"
 find I2P.app -name *.dylib -exec codesign --force -s $I2P_SIGNER -v '{}' \;
