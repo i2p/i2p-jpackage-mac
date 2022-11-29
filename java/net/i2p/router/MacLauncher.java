@@ -42,12 +42,31 @@ public class MacLauncher {
         }
 
 
+        Router i2pRouter = new Router(System.getProperties());
+
         Thread registrationThread = new Thread(REGISTER_UPP);
         registrationThread.setName("UPP Registration");
         registrationThread.setDaemon(true);
         registrationThread.start();
 
-        RouterLaunch.main(args);
+        String arch =System.getProperty("os.arch");
+        if (arch.equals("aarch64")){
+            changeSetting(i2pRouter, "router.newsURL", "http://tc73n4kivdroccekirco7rhgxdg5f3cjvbaapabupeyzrqwv5guq.b32.i2p/mac-arm64/stable/news.su3");
+            changeSetting(i2pRouter, "router.backupNewsURL", "http://dn3tvalnjz432qkqsvpfdqrwpqkw3ye4n4i2uyfr4jexvo3sp5ka.b32.i2p/news/mac-arm64/stable/news.su3");
+        }else{
+            changeSetting(i2pRouter, "router.newsURL", "http://tc73n4kivdroccekirco7rhgxdg5f3cjvbaapabupeyzrqwv5guq.b32.i2p/mac/stable/news.su3");
+            changeSetting(i2pRouter, "router.backupNewsURL", "http://dn3tvalnjz432qkqsvpfdqrwpqkw3ye4n4i2uyfr4jexvo3sp5ka.b32.i2p/news/mac/stable/news.su3");
+        }
+
+        i2pRouter.runRouter();
+    }
+
+    private static void changeSetting(Router i2pRouter, String key, String value){
+        String setting = i2pRouter.getConfigSetting(key);
+        if (setting == null) {
+            i2pRouter.saveConfig(key, value);
+            i2pRouter.saveConfig(key, value);
+        }
     }
 
     private static native void disableAppNap();
