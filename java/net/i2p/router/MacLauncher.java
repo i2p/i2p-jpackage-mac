@@ -49,8 +49,8 @@ public class MacLauncher {
         registrationThread.setDaemon(true);
         registrationThread.start();
 
-        String arch =System.getProperty("os.arch");
-        if (arch.equals("aarch64")){
+        String arch = System.getProperty("os.arch");
+        if (arch.equals("aarch64")) {
             changeSetting(i2pRouter, "router.newsURL", "http://tc73n4kivdroccekirco7rhgxdg5f3cjvbaapabupeyzrqwv5guq.b32.i2p/mac-arm64/stable/news.su3");
             changeSetting(i2pRouter, "router.backupNewsURL", "http://dn3tvalnjz432qkqsvpfdqrwpqkw3ye4n4i2uyfr4jexvo3sp5ka.b32.i2p/news/mac-arm64/stable/news.su3");
         }else{
