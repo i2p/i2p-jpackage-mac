@@ -36,6 +36,10 @@ public class MacUpdateProcessor implements UpdatePostProcessor {
 
         if (fileType != SU3File.TYPE_DMG) {
             log.warn("Unsupported file type " + fileType);
+            log.warn("Deleting it before it causes trouble.");
+            if (file.exists()) {
+                file.delete();
+            }
             return;
         }
 
