@@ -65,7 +65,6 @@ public class MacLauncher {
         String setting = i2pRouter.getConfigSetting(key);
         if (setting == null) {
             i2pRouter.saveConfig(key, value);
-            i2pRouter.saveConfig(key, value);
         }
     }
 
