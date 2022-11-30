@@ -53,7 +53,7 @@ public class MacLauncher {
         if (arch.equals("aarch64")) {
             changeSetting(i2pRouter, "router.newsURL", "http://tc73n4kivdroccekirco7rhgxdg5f3cjvbaapabupeyzrqwv5guq.b32.i2p/mac-arm64/stable/news.su3");
             changeSetting(i2pRouter, "router.backupNewsURL", "http://dn3tvalnjz432qkqsvpfdqrwpqkw3ye4n4i2uyfr4jexvo3sp5ka.b32.i2p/news/mac-arm64/stable/news.su3");
-        }else{
+        } else {
             changeSetting(i2pRouter, "router.newsURL", "http://tc73n4kivdroccekirco7rhgxdg5f3cjvbaapabupeyzrqwv5guq.b32.i2p/mac/stable/news.su3");
             changeSetting(i2pRouter, "router.backupNewsURL", "http://dn3tvalnjz432qkqsvpfdqrwpqkw3ye4n4i2uyfr4jexvo3sp5ka.b32.i2p/news/mac/stable/news.su3");
         }
