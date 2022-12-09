@@ -21,7 +21,6 @@ fi
 
 if [ -z "${I2P_SIGNER}" ]; then
     echo "I2P_SIGNER variable not set, can't sign. Script will terminate after unsigned app-image generation"
-    exit 1
 fi
 
 if [ -z ${I2P_VERSION} ]; then
