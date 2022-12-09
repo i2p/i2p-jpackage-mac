@@ -26,8 +26,8 @@ and automatically configure your `JAVA_HOME`.
 Currently, bundles are built with OpenJDK 19.
 
 ```sh
-sdk install java 1.19.0-open
-sdk use java 1.19.0-open
+sdk install java 19.0.1-open
+sdk use java 19.0.1-open
 ```
 
 Will automatically set up your OpenJDK 19.

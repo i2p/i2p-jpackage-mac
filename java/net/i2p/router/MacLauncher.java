@@ -18,6 +18,7 @@ public class MacLauncher {
 
     /** this is totally undocumented */
     private static final String APP_PATH = "jpackage.app-path";
+    private static Router i2pRouter;
 
     public static void main(String[] args) throws Exception {
         String path = System.getProperty(APP_PATH,"unknown");
@@ -42,7 +43,7 @@ public class MacLauncher {
         }
 
 
-        Router i2pRouter = new Router(System.getProperties());
+        i2pRouter = new Router(System.getProperties());
 
         Thread registrationThread = new Thread(REGISTER_UPP);
         registrationThread.setName("UPP Registration");
