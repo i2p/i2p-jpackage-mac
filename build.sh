@@ -68,6 +68,7 @@ cc -v -Wl,-lobjc -mmacosx-version-min=10.9 -I"$JAVA_HOME/include" -I"$JAVA_HOME/
 
 if [ -z $I2P_SIGNER ]; then
     echo "I2P_SIGNER is unset, not proceeding to sign jbigi libs"
+    cp $I2P_JARS/jbigi.jar build
 else
     echo "signing jbigi libs"
     mkdir jbigi
@@ -78,10 +79,11 @@ else
         codesign --force -s $I2P_SIGNER -v $lib
         jar uf jbigi.jar $lib
     done
+    cp jbigi.jar ../build
+    cd ..
 fi
 
-cp jbigi.jar ../build
-cd ..
+
 
 
 I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
