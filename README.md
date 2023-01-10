@@ -30,10 +30,16 @@ In order to build an AppBundle that can work from anywhere, it is necessary to u
 1. You need an "app-specific password" which you can create at https://appleid.apple.com
 2. Execute 
 ```
-xcrun altool --eval-app --primary-bundle-id net.i2p.router -u <your Apple id> -f <name of the .dmg file>
+xcrun notarytool store-credentials "$AC_PASSWORD"
+               --apple-id "$AC_USERNAME"
+               --team-id "$WWDRTeamID"
+               --password "$secret_2FA_password"
 ```
-This will ask you for the password you generated in step 1 and will return a long UUID string you can use to check the progress.
-
+ - In this example command:
+ - `AC_PASSWORD` is the name of the credentials config.
+ - `AC_USERNAME` is the username of the Apple Account.
+ - `WWDRTeamID` is the developer/team ID available from the Apple Account.
+ - `secret_2FA_Password` is the app-specific password you set up in the first step.
 3. Periodically execute the following to check the progress of the notarisation:
 ```
 xcrun altool --eval-info <the long UUID string> -u <your Apple id>
