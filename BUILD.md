@@ -72,6 +72,7 @@ In order to configure your release environment, you must set the following
 environment variables:
 
  - `I2P_SIGNER` should be the [Apple Developer ID of the signer](https://developer.apple.com/support/developer-id/)
+ - `I2P_CODE_SIGNER` should be the Apple Developer ID for Code Signing of the signer(Usually find this with `security find-identity -v -p codesigning`)
  - `I2P_VERSION` should be the version of the I2P router that you want to use
  - `I2P_BUILD_NUMBER` should be an integer greater than `0`.
 
