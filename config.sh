@@ -8,7 +8,7 @@ fi
 if [ -z $I2P_CODE_SIGNER ]; then
     # This is the code signing ID of the team associated with the Apple Account. it is used to sign the libraries.
     # it is a unique ID which is a short, random-looking string.
-    I2P_SIGNER=signer@mail.i2p
+    I2P_CODE_SIGNER=signer@mail.i2p
 fi
 if [ -z $I2P_VERSION ]; then
     I2P_VERSION=2.0.0
