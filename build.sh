@@ -134,20 +134,15 @@ if [ -z $I2P_SIGNER ]; then
     exit 0 
 fi
 
+if [ -z $I2P_CODE_SIGNER ]; then
+    echo "I2P_CODE_SIGNER is unset, not proceeding to signing phase"
+    exit 0 
+fi
 
 echo "signing the runtime libraries"
 
-if [ $I2P_CODE_SIGNER = signer@mail.i2p ]; then
-    echo "I2P_CODE_SIGNER is unset, not signing dylibs or jnilibs, app will fail notarization"
-else
-    find I2P.app -name *.dylib -exec codesign --force -s $I2P_CODE_SIGNER -v '{}' \;
-    find I2P.app -name *.jnilib -exec codesign --force -s $I2P_CODE_SIGNER -v '{}' \;
-fi
-
-if [ $I2P_SIGNER = signer@mail.i2p ]; then
-    echo "I2P_SIGNER is unset, not proceeding to signing phase"
-    exit 0 
-fi
+find I2P.app -name *.dylib -exec codesign --force -s $I2P_CODE_SIGNER -v '{}' \;
+find I2P.app -name *.jnilib -exec codesign --force -s $I2P_CODE_SIGNER -v '{}' \;
 
 echo "signing the bundle"
 codesign --force -d --deep -f \
@@ -160,5 +155,6 @@ codesign --force -d --deep -f \
 jpackage --name I2P --app-image I2P.app --app-version $I2P_VERSION \
         --verbose --temp tmp \
         --license-file build/LICENSE.txt \
+        --mac-sign \
+        --mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE" \
         --resource-dir build
-

@@ -49,3 +49,4 @@ xcrun altool --eval-info <the long UUID string> -u <your Apple id>
 xcrun stapler staple <name of the .dmg>
 ```
 
+- [This StackOverflow thread contains invaluable information about how to successfully notarize jpackage-based software](https://stackoverflow.com/questions/60953329/code-signing-notarization-using-jpackage-utility-isnt-working-on-macos)
