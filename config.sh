@@ -5,7 +5,7 @@
 # Uncomment/Edit this line to include the code signer in the config file
 # I2P_CODE_SIGNER=ABCDEFGHIJ
 # Uncomment/Edit this line to include the phrase identifying the signer to jpackage in the config file
-# I2P_CODE_SIGNER=3rd Party Mac Developer Application: John Smith (ABCDEFGHIJ)
+# I2P_SIGNER_USERPHRASE=3rd Party Mac Developer Application: John Smith (ABCDEFGHIJ)
 
 
 # Uncomment/Edit this line to include the version number in the config file
