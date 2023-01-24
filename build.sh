@@ -44,8 +44,9 @@ echo "cleaning"
 
 ARCH=$(uname -m)
 HERE=$PWD
-I2P_JARS=$HERE/../i2p.i2p/pkg-temp/lib
-I2P_PKG=$HERE/../i2p.i2p/pkg-temp
+I2P_SRC=$HERE/../i2p.i2p-jpackage-mac/
+I2P_JARS=$HERE/../i2p.i2p-jpackage-mac/pkg-temp/lib
+I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
 
 mkdir build
 
@@ -54,6 +55,19 @@ cp $I2P_JARS/*.jar build
 cd java
 javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java net/i2p/update/*.java
 cd ..
+
+I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
+
+OLDEXTRA=$(find ../i2p.i2p-jpackage-mac -name RouterVersion.java -exec grep 'String EXTRA' {} \;)
+if [ -z "$EXTRA" ]; then
+  export EXTRACODE="mac"
+  export EXTRA="    public final static String EXTRA = \"-$EXTRACODE\";"
+fi
+find ../i2p.i2p-jpackage-mac -name RouterVersion.java -exec sed -i "s|$OLDEXTRA|$EXTRA|g" {} \;
+cd "$I2P_SRC"
+git checkout -b "i2p-$I2P_VERSION-$EXTRACODE" && git commit -am "i2p-$I2P_VERSION-$EXTRACODE"
+git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "i2p-$I2P_VERSION-$EXTRACODE"
+cd "$HERE"
 
 echo "copying mac-update.sh"
 cp bash/mac-update.sh build
@@ -83,10 +97,6 @@ else
     cd ..
 fi
 
-
-
-
-I2P_VERSION=$(java -cp build/router.jar net.i2p.router.RouterVersion | sed "s/.*: //" | head -n 1)
 echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD_NUMBER"
 
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
