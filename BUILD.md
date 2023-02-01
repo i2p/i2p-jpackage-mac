@@ -4,6 +4,19 @@ Building an I2P Easy-Install Bundle for Mac
 This documents building the I2P Easy-Install for Mac end-to-end, including the
 set up, configuration, and maintenance of a build environment.
 
+
+Signed Builds
+-------------
+
+In order to carry out a signed build which can be submitted to Apple for
+notarization and re-distribution, set the following environment variables:
+
+```
+export I2P_SIGNER=(The sha256 fingerprint of the developer signing cert)
+export I2P_CODE_SIGNER=(The sha256 fingerprint of the developer signing cert)
+export I2P_SIGNER_USERPHRASE=(The sha256 fingerprint of the developer signing cert)
+```
+
 Setting up a Java SDK manager
 -----------------------------
 
