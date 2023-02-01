@@ -63,7 +63,7 @@ I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
 if [ ! -d "$I2P_PKG" ]; then
     cd "$I2P_SRC"
     git pull --tags
-    git checkout "$I2P_VERSION"
+    git checkout "i2p-$I2P_VERSION"
     ant clean preppkg-osx-only
 fi
 cd "$HERE"
