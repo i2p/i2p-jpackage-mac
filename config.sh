@@ -30,7 +30,7 @@ if [ -z $I2P_CODE_SIGNER ]; then
     # it is a unique ID which is a short, random-looking string.
     echo "I2P_CODE_SIGNER not set, signing will not work"
 fi
-if [ -z $I2P_SIGNER_USERPHRASE ]; then
+if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
     # This is an the phrase identifying the third party developer(I2P) in the following form:
     # 3rd Party Mac Developer Application: John Smith (ABCDEFGHIJ)
     echo "I2P_SIGNER_USERPHRASE not set, signing will not work"
