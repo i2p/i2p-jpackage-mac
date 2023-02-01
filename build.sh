@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e 
 
+if [ -z $I2P_VERSION ]; then
+    I2P_VERSION=2.1.0
+fi
+if [ -z $I2P_BUILD_NUMBER ]; then
+    I2P_BUILD_NUMBER=1
+fi
+
 if [ -f config.sh ]; then
     . config.sh
 fi
