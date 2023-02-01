@@ -26,23 +26,30 @@ if [ "$JAVA" -lt "16" ]; then
 	exit 1
 fi
 
-if [ -z "${I2P_SIGNER}" ]; then
-    echo "I2P_SIGNER variable not set, can't sign. Script will terminate after unsigned app-image generation"
-fi
-
-if [ -z ${I2P_VERSION} ]; then
-    echo "I2P_VERSION not set, aborting"
-    exit 1
-fi
-
-if [ -z ${I2P_BUILD_NUMBER} ]; then
-    echo "please set the I2P_BUILD_NUMBER variable to some integer >= 1"
-    exit 1
-fi
-
 if [ -z ${JAVA_HOME} ]; then
     JAVA_HOME=$(/usr/libexec/java_home)
 fi
+
+if [ -z "$I2P_SIGNER" ]; then
+    I2P_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
+    echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER"
+    echo "continuing in 10 seconds"
+    sleep 10s
+fi
+if [ -z "$I2P_CODE_SIGNER" ]; then
+    I2P_CODE_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
+    echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_CODE_SIGNER"
+    echo "continuing in 10 seconds"
+    sleep 10s
+fi
+if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
+    I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
+    echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER_USERPHRASE"
+    echo "continuing in 10 seconds"
+    sleep 10s
+fi
+
+
 
 echo "JAVA_HOME is $JAVA_HOME"
 

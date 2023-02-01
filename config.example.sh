@@ -13,19 +13,13 @@
 # Uncomment/Edit this line to include the build number in the config file
 # I2P_BUILD_NUMBER=1
 
-if [ -z $I2P_VERSION ]; then
-    I2P_VERSION=2.1.0
-fi
-if [ -z $I2P_BUILD_NUMBER ]; then
-    I2P_BUILD_NUMBER=1
-fi
-
 if [ -z $I2P_SIGNER ]; then
     # This is the team ID of the Apple account associated with the app. It is used to sign the DMG.
     # it is a unique ID which is a short, random-looking string.
     # OR
     # the sha256 fingerprint of the cert(recommended)
     echo "I2P_SIGNER not set, signing will not work"
+    I2P_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
 fi
 if [ -z $I2P_CODE_SIGNER ]; then
     # This is the code signing ID of the team associated with the Apple Account. it is used to sign the libraries.
@@ -33,6 +27,7 @@ if [ -z $I2P_CODE_SIGNER ]; then
     # OR
     # the sha256 fingerprint of the cert(recommended)
     echo "I2P_CODE_SIGNER not set, signing will not work"
+    I2P_CODE_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
 fi
 if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
     # This is an the phrase identifying the third party developer(I2P) in the following form:
@@ -40,5 +35,6 @@ if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
     # OR
     # the sha256 fingerprint of the cert(recommended)
     echo "I2P_SIGNER_USERPHRASE not set, signing will not work"
+    I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
 fi
 
