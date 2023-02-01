@@ -69,7 +69,7 @@ I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
 
 
 cd "$I2P_SRC"
-git switch - 2>/dev/null; true
+git switch - || :
 git pull --tags
 git checkout "i2p-$I2P_VERSION"
 OLDEXTRA=$(find ../i2p.i2p-jpackage-mac -name RouterVersion.java -exec grep 'String EXTRA' {} \;)
