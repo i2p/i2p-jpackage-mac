@@ -81,10 +81,10 @@ Ensure you have a copy of `i2p.i2p` checked out adjacent to the
 building the jpackage, run the following command:
 
 ```sh
-git clone https://i2pgit.org/i2p-hackers/i2p.i2p
+git clone https://i2pgit.org/i2p-hackers/i2p.i2p "i2p.i2p-jpackage-mac"
 ```
 
-Change to the `i2p.i2p` directory and check out the release branch you want to
+Change to the `i2p.i2p-jpackage-mac` directory and check out the release branch you want to
 build a package for, e.g. `i2p-1.9.0`
 
 ```sh

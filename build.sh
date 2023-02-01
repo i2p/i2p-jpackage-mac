@@ -45,8 +45,21 @@ echo "cleaning"
 ARCH=$(uname -m)
 HERE=$PWD
 I2P_SRC=$HERE/../i2p.i2p-jpackage-mac/
+
+if [ ! -d "$I2P_SRC" ]; then
+    git clone https://i2pgit.org/i2p-hackers/i2p.i2p "$I2P_SRC"
+fi
+
 I2P_JARS=$HERE/../i2p.i2p-jpackage-mac/pkg-temp/lib
 I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
+
+if [ ! -d "$I2P_PKG" ]; then
+    cd "$I2P_SRC"
+    git pull --tags
+    git checkout "$I2P_VERSION"
+    ant clean preppkg-osx-only
+fi
+cd "$HERE"
 
 mkdir build
 
