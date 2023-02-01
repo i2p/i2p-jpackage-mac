@@ -1,19 +1,19 @@
 #! /usr/bin/env sh
 
-I2P_DATE=`date +%Y-%m-%d`
+I2P_DATE=$(date +%Y-%m-%d)
 
-if [ -z ${I2P_OS} ]; then
+if [ -z "${I2P_OS}" ]; then
   I2P_OS=mac
 fi
-if [ -z ${I2P_BRANCH} ]; then
+if [ -z "${I2P_BRANCH}" ]; then
   I2P_BRANCH=beta
 fi
-if [ -z ${I2P_DOWNLOAD} ]; then
+if [ -z "${I2P_DOWNLOAD}" ]; then
   echo "\$I2P_DOWNLOAD is not set, an HTTP download will not be added to releases.json"
   sleep 5s
 fi
 
-if [ -z ${I2P_VERSION} ]; then
+if [ -z "${I2P_VERSION}" ]; then
   echo "\$I2P_VERSION not set, aborting"
   exit 1
 fi

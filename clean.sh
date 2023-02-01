@@ -15,6 +15,6 @@ rm -rfv \
 	prngseed.rnd \
 	router.config \
 	wrapper.log \
-	*.jar \
-	*.exe \
-	*.dmg
+	./*.jar \
+	./*.exe \
+	./*.dmg
