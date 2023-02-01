@@ -31,19 +31,19 @@ if [ -z "${JAVA_HOME}" ]; then
 fi
 
 if [ -z "$I2P_SIGNER" ]; then
-    I2P_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
+    I2P_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER"
     echo "continuing in 10 seconds"
     sleep 10s
 fi
 if [ -z "$I2P_CODE_SIGNER" ]; then
-    I2P_CODE_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
+    I2P_CODE_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_CODE_SIGNER"
     echo "continuing in 10 seconds"
     sleep 10s
 fi
 if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
-    I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 3)
+    I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER_USERPHRASE"
     echo "continuing in 10 seconds"
     sleep 10s
