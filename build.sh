@@ -191,4 +191,5 @@ jpackage --name I2P --app-image I2P.app --app-version "$I2P_VERSION" \
         --license-file build/LICENSE.txt \
         --mac-sign \
         --mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE" \
+        --mac-entitlements resources/entitlements.xml \
         --resource-dir build
