@@ -179,7 +179,7 @@ find I2P.app -name "*.dylib" -exec codesign --force -s "$I2P_SIGNER" -v '{}' \;
 find I2P.app -name "*.jnilib" -exec codesign --force -s "$I2P_CODE_SIGNER" -v '{}' \;
 
 echo "signing the bundle"
-codesign --force -d --deep -f \
+codesign --force -f \
     --options=runtime \
     --entitlements resources/entitlements.xml \
     -s "$I2P_SIGNER" \
