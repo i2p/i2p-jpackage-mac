@@ -4,6 +4,17 @@ set -e
 if [ -z "$I2P_VERSION" ]; then
     I2P_VERSION="i2p-2.1.0"
 fi
+
+if [ $(echo "$I2P_VERSION" | grep -q '.\..\..') ]; then
+    if [ -z "$I2P_RELEASE_VERSION" ]; then
+        I2P_RELEASE_VERSION="$I2P_VERSION"
+    fi
+else
+    if [ -z "$I2P_RELEASE_VERSION" ]; then
+        I2P_RELEASE_VERSION=2.1.0
+    fi
+fi
+
 if [ -z "$I2P_BUILD_NUMBER" ]; then
     I2P_BUILD_NUMBER=1
 fi
@@ -186,7 +197,7 @@ echo "signing the bundle"
 #    --verbose=4 \
 #    I2P.app
 
-jpackage --name I2P --app-image I2P.app --app-version "$I2P_VERSION" \
+jpackage --name I2P --app-image I2P.app --app-version "$I2P_RELEASE_VERSION" \
         --verbose --temp tmp \
         --license-file build/LICENSE.txt \
         --mac-sign \

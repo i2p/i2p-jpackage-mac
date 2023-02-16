@@ -10,6 +10,8 @@
 
 # Uncomment/Edit this line to include the version number in the config file
 # I2P_VERSION=i2p-2.1.0
+# Uncomment/Edit this line to change the version number that you pass to jpackage
+# I2P_RELEASE_VERSION=2.1.0
 # Uncomment/Edit this line to include the build number in the config file
 # I2P_BUILD_NUMBER=1
 
