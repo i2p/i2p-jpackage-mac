@@ -5,7 +5,7 @@ if [ -z "$I2P_VERSION" ]; then
     I2P_VERSION="i2p-2.1.0"
 fi
 
-if [ $(echo "$I2P_VERSION" | grep -q '.\..\..') ]; then
+if echo "$I2P_VERSION" | grep -q '.\..\..'; then
     if [ -z "$I2P_RELEASE_VERSION" ]; then
         I2P_RELEASE_VERSION="$I2P_VERSION"
     fi
