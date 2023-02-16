@@ -2,7 +2,7 @@
 set -e 
 
 if [ -z "$I2P_VERSION" ]; then
-    I2P_VERSION="2.1.0"
+    I2P_VERSION="i2p-2.1.0"
 fi
 if [ -z "$I2P_BUILD_NUMBER" ]; then
     I2P_BUILD_NUMBER=1
@@ -34,19 +34,19 @@ if [ -z "$I2P_SIGNER" ]; then
     I2P_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER"
     echo "continuing in 10 seconds"
-    sleep 10s
+    sleep 10
 fi
 if [ -z "$I2P_CODE_SIGNER" ]; then
     I2P_CODE_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_CODE_SIGNER"
     echo "continuing in 10 seconds"
-    sleep 10s
+    sleep 10
 fi
 if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
     I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER_USERPHRASE"
     echo "continuing in 10 seconds"
-    sleep 10s
+    sleep 10
 fi
 
 
@@ -69,17 +69,17 @@ I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
 
 
 cd "$I2P_SRC"
-git switch - || :
+git checkout master || :
 git pull --tags
-git checkout "i2p-$I2P_VERSION"
+git checkout "$I2P_VERSION"
 OLDEXTRA=$(find ../i2p.i2p-jpackage-mac -name RouterVersion.java -exec grep 'String EXTRA' {} \;)
 if [ -z "$EXTRA" ]; then
     export EXTRACODE="mac"
     export EXTRA="    public final static String EXTRA = \"-$EXTRACODE\";"
 fi
 sed -i.bak "s|$OLDEXTRA|$EXTRA|g" "$I2P_SRC/router/java/src/net/i2p/router/RouterVersion.java"
-git checkout -b "i2p-$I2P_VERSION-$EXTRACODE" && git commit -am "i2p-$I2P_VERSION-$EXTRACODE"
-git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "i2p-$I2P_VERSION-$EXTRACODE"
+git checkout -b "$I2P_VERSION-$EXTRACODE" && git commit -am "$I2P_VERSION-$EXTRACODE"
+git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "$I2P_VERSION-$EXTRACODE"
 if [ ! -d "$I2P_PKG" ]; then
     ant clean preppkg-osx-only
 fi
