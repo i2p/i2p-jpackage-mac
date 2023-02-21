@@ -81,6 +81,7 @@ I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
 
 cd "$I2P_SRC"
 git checkout master || :
+git checkout . || :
 git pull --tags
 git checkout "$I2P_VERSION"
 OLDEXTRA=$(grep 'String EXTRA' "$I2P_SRC/router/java/src/net/i2p/router/RouterVersion.java")
@@ -89,9 +90,9 @@ if [ -z "$EXTRA" ]; then
     export EXTRA="    public final static String EXTRA = \"-$EXTRACODE\";"
 fi
 sed -i.bak "s|$OLDEXTRA|$EXTRA|g" "$I2P_SRC/router/java/src/net/i2p/router/RouterVersion.java"
-git checkout -b "$I2P_VERSION-$EXTRACODE"
-git commit -am "$I2P_VERSION-$EXTRACODE"
-git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "$I2P_VERSION-$EXTRACODE"
+git checkout -b "$I2P_RELEASE_VERSION-$EXTRACODE"
+git commit -am "$I2P_RELEASE_VERSION-$EXTRACODE"
+git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "$I2P_RELEASE_VERSION-$EXTRACODE"
 if [ ! -d "$I2P_PKG" ]; then
     ant clean preppkg-osx-only
 fi
@@ -133,7 +134,7 @@ else
     cd ..
 fi
 
-echo "preparing to invoke jpackage for I2P version $I2P_VERSION build $I2P_BUILD_NUMBER"
+echo "preparing to invoke jpackage for I2P version $I2P_RELEASE_VERSION build $I2P_BUILD_NUMBER"
 
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
 cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
@@ -142,7 +143,7 @@ cat resources/License-JRE-snippet.txt >> build/LICENSE.txt
 cp resources/I2P-background.tiff build
 
 cp resources/Info.plist.template build/Info.plist
-sed -i.bak "s/I2P_VERSION/$I2P_VERSION/g" build/Info.plist
+sed -i.bak "s/I2P_VERSION/$I2P_RELEASE_VERSION/g" build/Info.plist
 sed -i.bak "s/I2P_BUILD_NUMBER/$I2P_BUILD_NUMBER/g" build/Info.plist
 
 cp resources/I2P-dmg-setup.scpt.template build/I2P-dmg-setup.scpt
