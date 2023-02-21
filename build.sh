@@ -90,7 +90,7 @@ if [ -z "$EXTRA" ]; then
     export EXTRA="    public final static String EXTRA = \"-$EXTRACODE\";"
 fi
 sed -i.bak "s|$OLDEXTRA|$EXTRA|g" "$I2P_SRC/router/java/src/net/i2p/router/RouterVersion.java"
-git checkout -b "$I2P_RELEASE_VERSION-$EXTRACODE"
+git checkout -b "$I2P_RELEASE_VERSION-$EXTRACODE" || git checkout "$I2P_RELEASE_VERSION-$EXTRACODE"
 git commit -am "$I2P_RELEASE_VERSION-$EXTRACODE"
 git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "$I2P_RELEASE_VERSION-$EXTRACODE"
 if [ ! -d "$I2P_PKG" ]; then
