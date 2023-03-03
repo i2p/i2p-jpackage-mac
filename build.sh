@@ -54,7 +54,7 @@ if [ -z "$I2P_CODE_SIGNER" ]; then
     sleep 10
 fi
 if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
-    I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
+    I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | head -n 1 | cut -d '"' -f 2)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER_USERPHRASE"
     echo "continuing in 10 seconds"
     sleep 10
@@ -159,6 +159,8 @@ jpackage --name I2P  \
         --type app-image \
         --verbose \
         --resource-dir build \
+        --mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE" \
+        --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
 
 echo "adding pkg-temp to resources"
