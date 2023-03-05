@@ -190,7 +190,7 @@ fi
 
 echo "NOT signing the runtime libraries"
 
-#find I2P.app -name "*.dylib" -exec codesign --force -s "$I2P_SIGNER" -v '{}' \;
+find I2P.app -name "*.dylib" -exec codesign --force -s "$I2P_SIGNER" -v '{}' \;
 #find I2P.app -name "*.jnilib" -exec codesign --force -s "$I2P_CODE_SIGNER" -v '{}' \;
 
 echo "signing the bundle"
