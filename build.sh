@@ -77,6 +77,7 @@ if [ ! -d "$I2P_SRC_BASE" ]; then
     git clone https://i2pgit.org/i2p-hackers/i2p.i2p "$I2P_SRC_BASE"
 fi
 cd "$I2P_SRC_BASE" && git pull --tags && cd "$HERE"
+rm -rf "$I2P_SRC_BASE"
 git clone -b "$I2P_VERSION" "$I2P_SRC_BASE" "$I2P_SRC"
 
 I2P_JARS=$HERE/../i2p.i2p-jpackage-mac/pkg-temp/lib
