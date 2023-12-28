@@ -70,20 +70,20 @@ echo "cleaning"
 ARCH=$(uname -m)
 HERE=$PWD
 I2P_SRC=$HERE/../i2p.i2p-jpackage-mac/
+I2P_SRC_BASE=$HERE/../i2p.i2p/
 
-if [ ! -d "$I2P_SRC" ]; then
-    git clone https://i2pgit.org/i2p-hackers/i2p.i2p "$I2P_SRC"
+rm -rf "$I2P_SRC"
+if [ -d "$I2P_SRC_BASE" ]; then
+    git clone https://i2pgit.org/i2p-hackers/i2p.i2p "$I2P_SRC_BASE"
 fi
+cd "$I2P_SRC_BASE" && git pull --tags && cd "$HERE"
+git clone -b "$I2P_VERSION" "$I2P_SRC_BASE" -b "$I2P_SRC"
 
 I2P_JARS=$HERE/../i2p.i2p-jpackage-mac/pkg-temp/lib
 I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
 
 
 cd "$I2P_SRC"
-git checkout master || :
-git checkout . || :
-git pull --tags
-git checkout "$I2P_VERSION"
 OLDEXTRA=$(grep 'String EXTRA' "$I2P_SRC/router/java/src/net/i2p/router/RouterVersion.java")
 if [ -z "$EXTRA" ]; then
     export EXTRACODE="mac"
