@@ -41,18 +41,6 @@ if [ -z "${JAVA_HOME}" ]; then
     JAVA_HOME=$(/usr/libexec/java_home)
 fi
 
-if [ -z "$I2P_SIGNER" ]; then
-    I2P_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
-    echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER"
-    echo "continuing in 10 seconds"
-    sleep 10
-fi
-if [ -z "$I2P_CODE_SIGNER" ]; then
-    I2P_CODE_SIGNER=$(security find-identity -v -p codesigning | cut -d ' ' -f 4)
-    echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_CODE_SIGNER"
-    echo "continuing in 10 seconds"
-    sleep 10
-fi
 if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
     I2P_SIGNER_USERPHRASE=$(security find-identity -v -p codesigning | head -n 1 | cut -d '"' -f 2)
     echo "Warning: using automatically configured signer ID, make sure this is the one you want: $I2P_SIGNER_USERPHRASE"
@@ -159,20 +147,14 @@ else
 fi
 cp "$HERE"/resources/*.crt I2P.app/Contents/Resources/certificates/router
 
-if [ -z "$I2P_SIGNER" ]; then
-    echo "I2P_SIGNER is unset, not proceeding to signing phase"
-    exit 0 
-fi
-
-if [ -z "$I2P_CODE_SIGNER" ]; then
-    echo "I2P_CODE_SIGNER is unset, not proceeding to signing phase"
-    exit 0 
-fi
-
-jpackage --name I2P --app-image I2P.app --app-version "$I2P_RELEASE_VERSION" \
-        --verbose --temp tmp \
-        --license-file build/LICENSE.txt \
-        --mac-sign \
+jpackage --name I2P  \
+        --java-options "-Xmx512m" \
+        --java-options "--add-opens java.base/java.lang=ALL-UNNAMED" \
+        --java-options "--add-opens java.base/sun.nio.fs=ALL-UNNAMED" \
+        --java-options "--add-opens java.base/java.nio=ALL-UNNAMED" \
+        --type dmg \
+        --verbose \
+        --resource-dir build \
         --mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE" \
         --mac-entitlements resources/entitlements.xml \
-        --resource-dir build
+        --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
