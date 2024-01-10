@@ -48,8 +48,6 @@ if [ -z "$I2P_SIGNER_USERPHRASE" ]; then
     sleep 10
 fi
 
-
-
 echo "JAVA_HOME is $JAVA_HOME"
 
 echo "cleaning"
