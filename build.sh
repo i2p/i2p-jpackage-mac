@@ -169,19 +169,6 @@ if [ -z "$I2P_CODE_SIGNER" ]; then
     exit 0 
 fi
 
-echo "NOT signing the runtime libraries"
-
-find I2P.app -name "*.dylib" -exec codesign --force -s "$I2P_SIGNER" -v '{}' \;
-#find I2P.app -name "*.jnilib" -exec codesign --force -s "$I2P_CODE_SIGNER" -v '{}' \;
-
-echo "signing the bundle"
-#codesign --force -f \
-#    --options=runtime \
-#    --entitlements resources/entitlements.xml \
-#    -s "$I2P_SIGNER" \
-#    --verbose=4 \
-#    I2P.app
-
 jpackage --name I2P --app-image I2P.app --app-version "$I2P_RELEASE_VERSION" \
         --verbose --temp tmp \
         --license-file build/LICENSE.txt \
