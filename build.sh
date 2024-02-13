@@ -147,7 +147,8 @@ if [ "$ARCH" == "arm64" ]; then
 else
     cp "$HERE/resources/router.config" I2P.app/Contents/Resources
 fi
-cp "$HERE"/resources/*.crt I2P.app/Contents/Resources/certificates/router
+# consider there might be some reason to re-enable this if an external maintainer arrives
+#cp "$HERE"/resources/*.crt I2P.app/Contents/Resources/certificates/router
 
 jpackage --name I2P  \
         --java-options "-Xmx512m" \
