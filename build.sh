@@ -55,8 +55,8 @@ echo "cleaning"
 
 ARCH=$(uname -m)
 HERE=$PWD
-I2P_SRC=$HERE/../i2p.i2p-jpackage-mac/
-I2P_SRC_BASE=$HERE/../i2p.i2p/
+I2P_SRC=$HERE/i2p.i2p-jpackage-mac/
+I2P_SRC_BASE=$HERE/i2p.i2p/
 
 rm -rf "$I2P_SRC"
 if [ ! -d "$I2P_SRC_BASE" ]; then
@@ -66,8 +66,8 @@ cd "$I2P_SRC_BASE" && git pull --tags && cd "$HERE"
 rm -rf "$I2P_SRC_BASE"
 git clone -b "$I2P_VERSION" "$I2P_SRC_BASE" "$I2P_SRC"
 
-I2P_JARS=$HERE/../i2p.i2p-jpackage-mac/pkg-temp/lib
-I2P_PKG=$HERE/../i2p.i2p-jpackage-mac/pkg-temp
+I2P_JARS=$HERE/i2p.i2p-jpackage-mac/pkg-temp/lib
+I2P_PKG=$HERE/i2p.i2p-jpackage-mac/pkg-temp
 
 
 cd "$I2P_SRC"
