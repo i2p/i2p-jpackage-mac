@@ -129,7 +129,7 @@ jpackage --name I2P  \
         --type app-image \
         --verbose \
         --resource-dir build \
-        "$SIGNING_ARG" \
+        $SIGNING_ARG \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
 
@@ -156,6 +156,6 @@ jpackage --name I2P  \
         --type dmg \
         --verbose \
         --resource-dir build \
-        "$SIGNING_ARG" \
+        $SIGNING_ARG \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
