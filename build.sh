@@ -159,3 +159,6 @@ jpackage --name I2P  \
         $SIGNING_ARG \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
+
+ls -lah I2P*.dmg
+ls -lahd I2P*
