@@ -117,6 +117,10 @@ sed -i.bak "s@__HERE__@${HERE}@g" build/I2P-dmg-setup.scpt
 
 rm build/*.bak
 
+if [ -z $I2P_SIGNER_USERPHRASE ]; then
+    SIGNING_ARG="--mac-signing-key-user-name $I2P_SIGNER_USERPHRASE"
+fi
+
 jpackage --name I2P  \
         --java-options "-Xmx512m" \
         --java-options "--add-opens java.base/java.lang=ALL-UNNAMED" \
@@ -125,7 +129,7 @@ jpackage --name I2P  \
         --type app-image \
         --verbose \
         --resource-dir build \
-        --mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE" \
+        "$SIGNING_ARG" \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
 
@@ -152,6 +156,6 @@ jpackage --name I2P  \
         --type dmg \
         --verbose \
         --resource-dir build \
-        --mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE" \
+        "$SIGNING_ARG" \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
