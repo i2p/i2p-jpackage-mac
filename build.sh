@@ -87,6 +87,7 @@ cd "$HERE"
 mkdir build
 
 echo "compiling custom launcher and update processor"
+cc -v -Wl,-lobjc -mmacosx-version-min=10.9 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/darwin" -Ic -o build/libMacLauncher.jnilib -shared c/net_i2p_router_MacLauncher.c 
 cp "$I2P_JARS"/*.jar build
 cd java
 javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java net/i2p/update/*.java
