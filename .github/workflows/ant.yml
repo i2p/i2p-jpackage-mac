@@ -16,10 +16,10 @@ jobs:
           distribution: 'temurin'
       - name: build with script
         run: ./build.sh
-      - name: Upload I2P-Easy-Install-Bundle-${{ github.sha }}-unsigned.exe
+      - name: Upload I2P-${{ github.sha }}.dmg
         uses: actions/upload-artifact@v4
         with:
-          name: I2P-EXE-${{ github.sha }}-unsigned.exe
-          path: I2P-EXE-2.4.0.exe
+          name: I2P-${{ github.sha }}.dmg
+          path: I2P-1.0.dmg
         
 
