@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e 
 
+export GITHUB_TAG=$(git describe --tags --abbrev=0 | sed 's|i2p||g' | tr -d [a-z-])
+
 if [ -z "$I2P_VERSION" ]; then
-    I2P_VERSION="i2p-2.6.0"
+    I2P_VERSION="i2p-$GITHUB_TAG"
 fi
 
 if echo "$I2P_VERSION" | grep -q '.\..\..'; then
@@ -11,7 +13,7 @@ if echo "$I2P_VERSION" | grep -q '.\..\..'; then
     fi
 else
     if [ -z "$I2P_RELEASE_VERSION" ]; then
-        I2P_RELEASE_VERSION=2.6.0
+        I2P_RELEASE_VERSION=$GITHUB_TAG
     fi
 fi
 
