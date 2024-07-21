@@ -7,6 +7,7 @@ on:
     # Sequence of patterns matched against refs/tags
     tags:
       - 'i2p-mac-*.*.*' # Release 1.2.3
+      - 'i2p-mac-*.*.*-*' # Release 1.2.3
 
 jobs:
   build:
