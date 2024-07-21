@@ -2,7 +2,7 @@
 set -e 
 
 if [ -z "$I2P_VERSION" ]; then
-    I2P_VERSION="i2p-2.3.0"
+    I2P_VERSION="i2p-2.6.0"
 fi
 
 if echo "$I2P_VERSION" | grep -q '.\..\..'; then
@@ -11,7 +11,7 @@ if echo "$I2P_VERSION" | grep -q '.\..\..'; then
     fi
 else
     if [ -z "$I2P_RELEASE_VERSION" ]; then
-        I2P_RELEASE_VERSION=2.3.0
+        I2P_RELEASE_VERSION=2.6.0
     fi
 fi
 
