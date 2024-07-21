@@ -2,8 +2,8 @@
 set -e 
 
 git pull --tags
-git describe --tags --abbrev=0 || exit 1
-export GITHUB_TAG=$(git describe --tags --abbrev=0 | sed 's|i2p||g' | tr -d a-z-)
+git describe --tags --always --abbrev=0 || exit 1
+export GITHUB_TAG=$(git describe --tags --always --abbrev=0 | sed 's|i2p||g' | tr -d a-z-)
 
 if [ -z "$I2P_VERSION" ]; then
     I2P_VERSION="i2p-$GITHUB_TAG"
