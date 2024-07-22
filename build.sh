@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e 
-git pull --tags
+git pull --tags; true
 git describe --tags `git rev-list --tags --max-count=1` || exit 1
 export GITHUB_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's|i2p||g' | tr -d a-z-)
 
