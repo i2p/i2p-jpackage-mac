@@ -21,8 +21,7 @@ jobs:
       - name: Upload I2P-${{ github.sha }}.dmg
         uses: actions/upload-artifact@v4
         with:
-          name: I2P-${{ github.sha }}.dmg
-          path: I2P-1.0.dmg
+          path: I2P-*.dmg
 
   build-22:
     runs-on: macos-latest
@@ -42,6 +41,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: I2P-${{ github.sha }}-22.dmg
-          path: I2P-1.0.dmg
+          path: I2P-*.dmg
         
 
