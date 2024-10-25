@@ -3,6 +3,16 @@ set -e
 git describe --tags `git rev-list --tags --max-count=1` || exit 1
 export GITHUB_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's|i2p||g' | tr -d a-z-)
 
+if echo "$GITHUB_TAG" | grep -q '.\..\..'; then
+    PUBLISH_VERSION="$GITHUB_TAG"
+else
+    echo "github tag $GITHUB_TAG does not match version pattern"
+    # no way to guess here, so if it's unset it must default to the latest version number:
+    if [ -z "$PUBLISH_VERSION" ]; then
+        PUBLISH_VERSION="2.7.0"
+    fi
+fi
+
 if [ -z "$I2P_VERSION" ]; then
     I2P_VERSION="i2p-$GITHUB_TAG"
 fi
@@ -16,6 +26,8 @@ else
         I2P_RELEASE_VERSION=$GITHUB_TAG
     fi
 fi
+
+echo "using $PUBLISH_VERSION as our release version to placate jpackage"
 
 if [ -z "$I2P_BUILD_NUMBER" ]; then
     I2P_BUILD_NUMBER=1
@@ -152,7 +164,7 @@ fi
 # consider there might be some reason to re-enable this if an external maintainer arrives
 #cp "$HERE"/resources/*.crt I2P.app/Contents/Resources/certificates/router
 
-jpackage --name I2P  \
+jpackage --name I2P --app-version "$PUBLISH_VERSION" \
         --java-options "-Xmx512m" \
         --java-options "--add-opens java.base/java.lang=ALL-UNNAMED" \
         --java-options "--add-opens java.base/sun.nio.fs=ALL-UNNAMED" \
