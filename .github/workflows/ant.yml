@@ -5,7 +5,7 @@ on: [push]
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
           path: I2P-*.dmg
 
   build-22:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - uses: actions/checkout@v4
@@ -44,4 +44,45 @@ jobs:
           name: I2P-${{ github.sha }}-22.dmg
           path: I2P-*.dmg
         
+  build-m1:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+      - name: build with script
+        run: ./build.sh
+      - name: Upload I2P-${{ github.sha }}.dmg
+        uses: actions/upload-artifact@v4
+        with:
+          name: I2P-${{ github.sha }}-m1.dmg
+          path: I2P-*.dmg
+
+  build-22-m1:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up JDK 22
+        uses: actions/setup-java@v4
+        with:
+          java-version: '22'
+          distribution: 'temurin'
+      - name: build with script
+        run: ./build.sh
+      - name: Upload I2P-${{ github.sha }}.dmg
+        uses: actions/upload-artifact@v4
+        with:
+          name: I2P-${{ github.sha }}-m1-jdk22.dmg
+          path: I2P-*.dmg
+        
+
 
