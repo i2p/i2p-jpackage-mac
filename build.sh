@@ -176,5 +176,5 @@ jpackage --name I2P --app-version "$PUBLISH_VERSION" \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
 
-ls -lah I2P*.dmg
-ls -lahd I2P*
+UNAME=$(uname -m)
+cp -v I2P*.dmg "I2P-$PUBLISH_VERSION-$UNAME.dmg"
