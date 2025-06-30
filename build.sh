@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e 
 git describe --tags `git rev-list --tags --max-count=1` || exit 1
-export GITHUB_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed 's|i2p||g' | tr -d a-z- | cut -d - -f 1,2)
+export GITHUB_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | cut -d - -f 1,2 | sed 's|i2p||g' | tr -d a-z-)
 echo "tag is: $GITHUB_TAG"
 if echo "$GITHUB_TAG" | grep -q '.\..\..'; then
     PUBLISH_VERSION="$GITHUB_TAG"
