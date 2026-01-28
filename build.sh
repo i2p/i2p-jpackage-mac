@@ -9,7 +9,7 @@ else
     echo "github tag $GITHUB_TAG does not match version pattern"
     # no way to guess here, so if it's unset it must default to the latest version number:
     if [ -z "$PUBLISH_VERSION" ]; then
-        PUBLISH_VERSION="2.7.0"
+        PUBLISH_VERSION="2.10.0"
     fi
 fi
 
@@ -74,9 +74,9 @@ I2P_SRC_BASE=$HERE/i2p.i2p/
 
 rm -rf "$I2P_SRC"
 if [ ! -d "$I2P_SRC_BASE" ]; then
-    git clone https://i2pgit.org/I2P_Developers/i2p.i2p "$I2P_SRC_BASE"
+    git clone https://github.com/i2p/i2p.i2p "$I2P_SRC_BASE"
 fi
-cd "$I2P_SRC_BASE" && git pull --tags && cd "$HERE"
+cd "$I2P_SRC_BASE" && git fetch --tags && git pull && cd "$HERE"
 git clone -b "$I2P_VERSION" "$I2P_SRC_BASE" "$I2P_SRC"
 
 I2P_JARS=$HERE/i2p.i2p-jpackage-mac/pkg-temp/lib
@@ -98,13 +98,27 @@ if [ ! -d "$I2P_PKG" ]; then
 fi
 cd "$HERE"
 
+# Replace menu bar icon in desktopgui.jar if we have a custom one
+if [ -f "$HERE/resources/StatusIcon24.png" ]; then
+    echo "replacing menu bar icon in desktopgui.jar"
+    DESKTOPGUI_JAR="$I2P_PKG/lib/desktopgui.jar"
+    if [ -f "$DESKTOPGUI_JAR" ]; then
+        mkdir -p /tmp/desktopgui_patch/desktopgui/resources/images
+        cp "$HERE/resources/StatusIcon24.png" /tmp/desktopgui_patch/desktopgui/resources/images/itoopie_black_24.png
+        cd /tmp/desktopgui_patch
+        jar uf "$DESKTOPGUI_JAR" desktopgui/resources/images/itoopie_black_24.png
+        cd "$HERE"
+        rm -rf /tmp/desktopgui_patch
+    fi
+fi
+
 mkdir build
 
 echo "compiling custom launcher and update processor"
 cc -v -Wl,-lobjc -mmacosx-version-min=10.9 -I"$JAVA_HOME/include" -I"$JAVA_HOME/include/darwin" -Ic -o build/libMacLauncher.jnilib -shared c/net_i2p_router_MacLauncher.c 
 cp "$I2P_JARS"/*.jar build
 cd java
-javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java net/i2p/update/*.java
+javac -d ../build -classpath ../build/i2p.jar:../build/router.jar net/i2p/router/MacLauncher.java net/i2p/router/MacAutoStart.java net/i2p/update/*.java
 cd "$HERE"
 
 echo "copying mac-update.sh"
@@ -117,8 +131,14 @@ cd ..
 
 echo "preparing to invoke jpackage for I2P version $I2P_RELEASE_VERSION build $I2P_BUILD_NUMBER"
 
-cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
-cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
+# Use custom icon if available, otherwise fall back to the one from I2P repo
+if [ -f "$HERE/resources/I2P.icns" ]; then
+    cp "$HERE/resources/I2P.icns" build/I2P.icns
+    cp "$HERE/resources/I2P.icns" build/I2P-volume.icns
+else
+    cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P.icns
+    cp "$I2P_PKG/Start I2P Router.app/Contents/Resources/i2p.icns" build/I2P-volume.icns
+fi
 cp "$I2P_PKG/LICENSE.txt" build
 cat resources/License-JRE-snippet.txt >> build/LICENSE.txt
 cp resources/I2P-background.tiff build
@@ -127,13 +147,11 @@ cp resources/Info.plist.template build/Info.plist
 sed -i.bak "s/I2P_VERSION/$I2P_RELEASE_VERSION/g" build/Info.plist
 sed -i.bak "s/I2P_BUILD_NUMBER/$I2P_BUILD_NUMBER/g" build/Info.plist
 
-cp resources/I2P-dmg-setup.scpt.template build/I2P-dmg-setup.scpt
-sed -i.bak "s@__HERE__@${HERE}@g" build/I2P-dmg-setup.scpt
-
 rm build/*.bak
 
-if [ -z $I2P_SIGNER_USERPHRASE ]; then
-    SIGNING_ARG="--mac-signing-key-user-name $I2P_SIGNER_USERPHRASE"
+SIGNING_ARGS=()
+if [ -n "$I2P_SIGNER_USERPHRASE" ]; then
+    SIGNING_ARGS=(--mac-signing-key-user-name "$I2P_SIGNER_USERPHRASE")
 fi
 
 jpackage --name I2P  \
@@ -144,7 +162,7 @@ jpackage --name I2P  \
         --type app-image \
         --verbose \
         --resource-dir build \
-        $SIGNING_ARG \
+        "${SIGNING_ARGS[@]}" \
         --mac-entitlements resources/entitlements.xml \
         --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
 
@@ -164,17 +182,57 @@ fi
 # consider there might be some reason to re-enable this if an external maintainer arrives
 #cp "$HERE"/resources/*.crt I2P.app/Contents/Resources/certificates/router
 
-jpackage --name I2P --app-version "$PUBLISH_VERSION" \
-        --java-options "-Xmx512m" \
-        --java-options "--add-opens java.base/java.lang=ALL-UNNAMED" \
-        --java-options "--add-opens java.base/sun.nio.fs=ALL-UNNAMED" \
-        --java-options "--add-opens java.base/java.nio=ALL-UNNAMED" \
-        --type dmg \
-        --verbose \
-        --resource-dir build \
-        $SIGNING_ARG \
-        --mac-entitlements resources/entitlements.xml \
-        --input build --main-jar launcher.jar --main-class net.i2p.router.MacLauncher
+# Bundle LaunchAgent plist for auto-start at login
+echo "bundling LaunchAgent for auto-start support"
+mkdir -p I2P.app/Contents/Resources/LaunchAgents
+cp "$HERE"/resources/net.i2p.router.plist I2P.app/Contents/Resources/LaunchAgents/
 
-ls -lah I2P*.dmg
-ls -lahd I2P*
+# Copy menu bar status icons if available
+if [ -f "$HERE/resources/StatusIcon.png" ]; then
+    echo "bundling menu bar status icons"
+    cp "$HERE"/resources/StatusIcon.png I2P.app/Contents/Resources/
+    cp "$HERE"/resources/StatusIcon@2x.png I2P.app/Contents/Resources/
+fi
+
+# Re-sign the app after adding all resources (jpackage's initial signature is invalidated)
+if [ -n "$I2P_SIGNER_USERPHRASE" ]; then
+    echo "code signing I2P.app with Developer ID"
+    codesign --deep --force --options runtime \
+        --entitlements resources/entitlements.xml \
+        --sign "Developer ID Application: $I2P_SIGNER_USERPHRASE" \
+        I2P.app
+    echo "verifying signature"
+    codesign -dv --verbose=2 I2P.app
+fi
+
+# Create DMG with create-dmg for proper drag-to-Applications layout
+echo "creating DMG with drag-to-Applications layout"
+rm -f "I2P-$PUBLISH_VERSION.dmg"
+
+create-dmg \
+    --volname "I2P" \
+    --volicon "build/I2P-volume.icns" \
+    --background "resources/I2P-background.tiff" \
+    --window-pos 200 120 \
+    --window-size 620 400 \
+    --icon-size 100 \
+    --icon "I2P.app" 150 185 \
+    --hide-extension "I2P.app" \
+    --app-drop-link 450 185 \
+    "I2P-$PUBLISH_VERSION.dmg" \
+    "I2P.app"
+
+echo ""
+echo "=== Build complete ==="
+ls -lah "I2P-$PUBLISH_VERSION.dmg"
+
+# Cleanup build artifacts
+echo ""
+echo "Cleaning up build artifacts..."
+rm -rf build/
+rm -rf I2P.app/
+rm -rf i2p.i2p-jpackage-mac/
+rm -f i2p.i2p.jpackage-mac.tar.gz
+
+echo ""
+echo "Done! DMG ready: I2P-$PUBLISH_VERSION.dmg"

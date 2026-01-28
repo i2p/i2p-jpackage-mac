@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>net.i2p.router</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Applications/I2P.app/Contents/MacOS/I2P</string>
+    </array>
+
+    <!-- Start when user logs in -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Don't restart if it exits (user controls lifecycle) -->
+    <key>KeepAlive</key>
+    <false/>
+
+    <!-- Run as the current user (not root) -->
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+
+    <!-- Optional: delay startup slightly to let other services initialize -->
+    <key>ThrottleInterval</key>
+    <integer>5</integer>
+</dict>
+</plist>

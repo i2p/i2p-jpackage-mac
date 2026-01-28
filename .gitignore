@@ -1,0 +1,25 @@
+# Local configuration (contains signing credentials)
+config.sh
+
+# Build artifacts
+build/
+I2P.app/
+*.dmg
+*.log
+
+# I2P source (cloned during build)
+i2p.i2p/
+i2p.i2p-jpackage-mac/
+i2p.i2p.jpackage-mac.tar.gz
+
+# macOS junk
+.DS_Store
+._*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Claude Code
+.claude/
