@@ -1,14 +1,16 @@
 #!/bin/bash
-set -e 
+set -e
 git describe --tags `git rev-list --tags --max-count=1` || exit 1
 export GITHUB_TAG=$(git describe --tags `git rev-list --tags --max-count=1` | sed -E -e 's/-[0-9]+$//' | sed 's|i2p||g' | tr -d a-z-)
 echo "tag is: $GITHUB_TAG"
-if echo "$GITHUB_TAG" | grep -q '.\..\..'; then
-    PUBLISH_VERSION="$GITHUB_TAG"
-else
-    echo "github tag $GITHUB_TAG does not match version pattern"
-    # no way to guess here, so if it's unset it must default to the latest version number:
-    if [ -z "$PUBLISH_VERSION" ]; then
+
+# Environment variables take precedence over git tag
+if [ -z "$PUBLISH_VERSION" ]; then
+    if echo "$GITHUB_TAG" | grep -q '.\..\..'; then
+        PUBLISH_VERSION="$GITHUB_TAG"
+    else
+        echo "github tag $GITHUB_TAG does not match version pattern"
+        # no way to guess here, so default to the latest version number:
         PUBLISH_VERSION="2.10.0"
     fi
 fi
@@ -70,11 +72,22 @@ echo "cleaning"
 ARCH=$(uname -m)
 HERE=$PWD
 I2P_SRC=$HERE/i2p.i2p-jpackage-mac/
-I2P_SRC_BASE=$HERE/i2p.i2p/
+
+# Support I2P+ builds via I2P_PLUS=1 environment variable
+if [ -n "$I2P_PLUS" ]; then
+    I2P_SRC_BASE=$HERE/i2pplus/
+    I2P_REPO="https://github.com/I2PPlus/i2pplus"
+    APP_NAME="I2P+"
+    echo "Building I2P+ variant"
+else
+    I2P_SRC_BASE=$HERE/i2p.i2p/
+    I2P_REPO="https://github.com/i2p/i2p.i2p"
+    APP_NAME="I2P"
+fi
 
 rm -rf "$I2P_SRC"
 if [ ! -d "$I2P_SRC_BASE" ]; then
-    git clone https://github.com/i2p/i2p.i2p "$I2P_SRC_BASE"
+    git clone "$I2P_REPO" "$I2P_SRC_BASE"
 fi
 cd "$I2P_SRC_BASE" && git fetch --tags && git pull && cd "$HERE"
 git clone -b "$I2P_VERSION" "$I2P_SRC_BASE" "$I2P_SRC"
@@ -93,7 +106,8 @@ sed -i.bak "s|$OLDEXTRA|$EXTRA|g" "$I2P_SRC/router/java/src/net/i2p/router/Route
 git commit -am "$I2P_RELEASE_VERSION-$EXTRACODE"
 git checkout -b "$I2P_RELEASE_VERSION-$EXTRACODE" || git checkout "$I2P_RELEASE_VERSION-$EXTRACODE"
 git archive --format=tar.gz --output="$HERE/i2p.i2p.jpackage-mac.tar.gz" "$I2P_RELEASE_VERSION-$EXTRACODE"
-if [ ! -d "$I2P_PKG" ]; then
+# Always run ant build - check for jars, not just directory existence
+if [ ! -f "$I2P_PKG/lib/i2p.jar" ]; then
     ant clean preppkg-osx-only
 fi
 cd "$HERE"
@@ -196,21 +210,63 @@ fi
 
 # Re-sign the app after adding all resources (jpackage's initial signature is invalidated)
 if [ -n "$I2P_SIGNER_USERPHRASE" ]; then
-    echo "code signing I2P.app with Developer ID"
-    codesign --deep --force --options runtime \
+    echo "code signing all binaries with Developer ID"
+
+    # Sign all native libraries inside jars (extract, sign, repack)
+    echo "signing native libraries inside jbigi.jar..."
+    JBIGI_JAR="I2P.app/Contents/app/jbigi.jar"
+    if [ -f "$JBIGI_JAR" ]; then
+        mkdir -p /tmp/jbigi_sign
+        cd /tmp/jbigi_sign
+        jar xf "$HERE/$JBIGI_JAR"
+        find . -name "*.jnilib" -o -name "*.dylib" | while read lib; do
+            codesign --force --options runtime --timestamp \
+                --sign "Developer ID Application: $I2P_SIGNER_USERPHRASE" "$lib" 2>/dev/null || true
+        done
+        jar cf "$HERE/$JBIGI_JAR" *
+        cd "$HERE"
+        rm -rf /tmp/jbigi_sign
+    fi
+
+    # Sign all dylibs and executables in the runtime
+    echo "signing JRE runtime binaries..."
+    find I2P.app/Contents/runtime -type f \( -name "*.dylib" -o -name "jspawnhelper" -o -perm +111 \) | while read bin; do
+        file "$bin" | grep -q "Mach-O" && codesign --force --options runtime --timestamp \
+            --sign "Developer ID Application: $I2P_SIGNER_USERPHRASE" "$bin" 2>/dev/null || true
+    done
+
+    # Sign all jnilib files in the app
+    echo "signing jnilib files..."
+    find I2P.app -name "*.jnilib" | while read lib; do
+        codesign --force --options runtime --timestamp \
+            --sign "Developer ID Application: $I2P_SIGNER_USERPHRASE" "$lib" 2>/dev/null || true
+    done
+
+    # Sign the main app bundle
+    echo "signing I2P.app bundle..."
+    codesign --force --options runtime --timestamp \
         --entitlements resources/entitlements.xml \
         --sign "Developer ID Application: $I2P_SIGNER_USERPHRASE" \
         I2P.app
+
     echo "verifying signature"
     codesign -dv --verbose=2 I2P.app
 fi
 
 # Create DMG with create-dmg for proper drag-to-Applications layout
 echo "creating DMG with drag-to-Applications layout"
-rm -f "I2P-$PUBLISH_VERSION.dmg"
+
+# Set DMG filename based on variant
+if [ -n "$I2P_PLUS" ]; then
+    DMG_NAME="I2P+-$PUBLISH_VERSION.dmg"
+else
+    DMG_NAME="I2P-$PUBLISH_VERSION.dmg"
+fi
+
+rm -f "$DMG_NAME"
 
 create-dmg \
-    --volname "I2P" \
+    --volname "$APP_NAME" \
     --volicon "build/I2P-volume.icns" \
     --background "resources/I2P-background.tiff" \
     --window-pos 200 120 \
@@ -219,12 +275,12 @@ create-dmg \
     --icon "I2P.app" 150 185 \
     --hide-extension "I2P.app" \
     --app-drop-link 450 185 \
-    "I2P-$PUBLISH_VERSION.dmg" \
+    "$DMG_NAME" \
     "I2P.app"
 
 echo ""
 echo "=== Build complete ==="
-ls -lah "I2P-$PUBLISH_VERSION.dmg"
+ls -lah "$DMG_NAME"
 
 # Cleanup build artifacts
 echo ""
@@ -235,4 +291,4 @@ rm -rf i2p.i2p-jpackage-mac/
 rm -f i2p.i2p.jpackage-mac.tar.gz
 
 echo ""
-echo "Done! DMG ready: I2P-$PUBLISH_VERSION.dmg"
+echo "Done! DMG ready: $DMG_NAME"

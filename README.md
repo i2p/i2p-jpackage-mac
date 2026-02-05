@@ -20,3 +20,6 @@ In order to build an AppBundle that can work from anywhere, it is necessary to u
 1. Copies the contents of `../i2p.i2p/pkg-temp` inside the AppBundle, except for the `jars` directory
 1. Signs the AppBundle
 1. Invokes JPackage again to build the final .dmg
+
+
+source config.sh && I2P_VERSION="i2p-2.10.0" PUBLISH_VERSION="2.10.0" ./build.sh
