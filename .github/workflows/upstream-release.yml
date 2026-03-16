@@ -1,0 +1,247 @@
+name: Build macOS DMG from Upstream Release
+
+on:
+  schedule:
+    # Check every 6 hours for new upstream tags
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Upstream i2p/i2p.i2p tag (e.g., i2p-2.10.0 or 2.10.0-3)'
+        required: true
+        type: string
+      force:
+        description: 'Force rebuild even if release exists'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      version: ${{ steps.resolve.outputs.version }}
+      should_build: ${{ steps.resolve.outputs.should_build }}
+    steps:
+      - name: Resolve upstream tag
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+            FORCE="${{ inputs.force }}"
+          else
+            # Fetch all release tags from upstream (both i2p-X.Y.Z and X.Y.Z-N formats)
+            TAG=$(git ls-remote --tags https://github.com/i2p/i2p.i2p.git \
+              | grep -v '\^{}' \
+              | sed 's|.*refs/tags/||' \
+              | grep -vE '(cvs|_|post|rc)' \
+              | grep -E '^(i2p-)?[0-9]+\.[0-9]+\.[0-9]+' \
+              | awk '{orig=$0; gsub(/^i2p-/, ""); print $0"|"orig}' \
+              | sort -t'|' -k1 -V \
+              | tail -1 \
+              | cut -d'|' -f2)
+            FORCE="false"
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "No valid upstream tag found"
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Strip i2p- prefix for version number
+          VERSION=$(echo "$TAG" | sed 's/^i2p-//')
+          echo "Found tag: $TAG (version: $VERSION)"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          if [ "$FORCE" = "true" ]; then
+            echo "Force build requested"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          elif gh release view "i2p-mac-${VERSION}" \
+               --repo "${{ github.repository }}" > /dev/null 2>&1; then
+            echo "Release i2p-mac-${VERSION} already exists, skipping"
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "New version detected, will build"
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-sign-notarize:
+    needs: check-upstream
+    if: needs.check-upstream.outputs.should_build == 'true'
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 120
+    env:
+      I2P_VERSION: ${{ needs.check-upstream.outputs.tag }}
+      PUBLISH_VERSION: ${{ needs.check-upstream.outputs.version }}
+      I2P_SIGNER_USERPHRASE: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git for CI
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: Unlock keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" ~/Library/Keychains/login.keychain-db
+          security set-keychain-settings -t 7200 ~/Library/Keychains/login.keychain-db
+          echo "Available signing identities:"
+          security find-identity -v -p codesigning
+
+      - name: Install build dependencies
+        run: |
+          brew install ant create-dmg 2>/dev/null || true
+          java --version
+          ant -version
+
+      - name: Build I2P macOS DMG
+        run: ./build.sh
+
+      - name: Verify code signature
+        run: |
+          DMG="I2P-${PUBLISH_VERSION}.dmg"
+          echo "Verifying: $DMG"
+          ls -lh "$DMG"
+          hdiutil attach "$DMG" -mountpoint /tmp/i2p_ci_verify -quiet
+          codesign --verify --deep --strict --verbose=2 /tmp/i2p_ci_verify/I2P.app
+          spctl -a -v /tmp/i2p_ci_verify/I2P.app 2>&1
+          hdiutil detach /tmp/i2p_ci_verify -quiet
+
+      - name: Notarize DMG
+        run: |
+          DMG="I2P-${PUBLISH_VERSION}.dmg"
+          echo "Submitting $DMG for notarization..."
+          xcrun notarytool submit "$DMG" --keychain-profile "i2p-notary" --wait
+
+      - name: Staple notarization ticket
+        run: |
+          DMG="I2P-${PUBLISH_VERSION}.dmg"
+          xcrun stapler staple "$DMG"
+          xcrun stapler validate "$DMG"
+
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Generate GPG signature
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          DMG="I2P-${PUBLISH_VERSION}.dmg"
+          gpg --batch --yes --pinentry-mode loopback \
+            --passphrase "$GPG_PASSPHRASE" \
+            --detach-sign --armor \
+            -o "${DMG}.sig" "$DMG"
+
+      - name: Generate checksum
+        run: |
+          DMG="I2P-${PUBLISH_VERSION}.dmg"
+          shasum -a 256 "$DMG" | tee "${DMG}.sha256"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: i2p-macos-${{ needs.check-upstream.outputs.version }}
+          path: |
+            I2P-${{ needs.check-upstream.outputs.version }}.dmg
+            I2P-${{ needs.check-upstream.outputs.version }}.dmg.sig
+            I2P-${{ needs.check-upstream.outputs.version }}.dmg.sha256
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -rf build/ I2P.app/ i2p.i2p-jpackage-mac/
+          rm -f i2p.i2p.jpackage-mac.tar.gz
+          rm -f *.dmg *.sig *.sha256
+          gpg --batch --yes --delete-secret-and-public-keys \
+            $(gpg --list-secret-keys --keyid-format long 2>/dev/null \
+              | grep sec | head -1 | awk '{print $2}' \
+              | cut -d'/' -f2) 2>/dev/null || true
+
+  release:
+    needs: [check-upstream, build-sign-notarize]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            README.md
+          sparse-checkout-cone-mode: false
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: i2p-macos-${{ needs.check-upstream.outputs.version }}
+          path: artifacts/
+
+      - name: Create release on this repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.check-upstream.outputs.version }}
+          UPSTREAM_TAG: ${{ needs.check-upstream.outputs.tag }}
+        run: |
+          TAG="i2p-mac-${VERSION}"
+          DMG="artifacts/I2P-${VERSION}.dmg"
+          SIG="artifacts/I2P-${VERSION}.dmg.sig"
+          SHA="artifacts/I2P-${VERSION}.dmg.sha256"
+          CHECKSUM=$(cat "$SHA")
+
+          cat > /tmp/release-notes.md <<EOF
+          ## I2P macOS ${VERSION}
+
+          Built from upstream tag: \`${UPSTREAM_TAG}\`
+          Signed with Developer ID and Apple Notarized.
+
+          ### Checksums
+          \`\`\`
+          ${CHECKSUM}
+          \`\`\`
+
+          ### Verification
+          \`\`\`bash
+          # Verify GPG signature
+          gpg --verify I2P-${VERSION}.dmg.sig I2P-${VERSION}.dmg
+
+          # Verify notarization (mount DMG first)
+          spctl -a -v /Volumes/I2P/I2P.app
+          \`\`\`
+          EOF
+          # Remove leading whitespace from heredoc
+          sed -i 's/^          //' /tmp/release-notes.md
+
+          gh release create "$TAG" \
+            --title "I2P macOS ${VERSION}" \
+            --notes-file /tmp/release-notes.md \
+            "$DMG" "$SIG" "$SHA"
+
+          echo "Release created: $TAG"
+
+      - name: Upload to upstream i2p/i2p.i2p release
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_RELEASE_TOKEN }}
+        run: |
+          VERSION="${{ needs.check-upstream.outputs.version }}"
+          TAG="${{ needs.check-upstream.outputs.tag }}"
+          DMG="artifacts/I2P-${VERSION}.dmg"
+          SIG="artifacts/I2P-${VERSION}.dmg.sig"
+
+          gh release upload "$TAG" "$DMG" "$SIG" \
+            --repo i2p/i2p.i2p \
+            --clobber || echo "Warning: Could not upload to upstream release"

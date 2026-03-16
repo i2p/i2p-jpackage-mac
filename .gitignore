@@ -9,6 +9,7 @@ I2P.app/
 
 # I2P source (cloned during build)
 i2p.i2p/
+i2pplus/
 i2p.i2p-jpackage-mac/
 i2p.i2p.jpackage-mac.tar.gz
 
