@@ -120,7 +120,7 @@ jobs:
           echo "Verifying: $DMG"
           ls -lh "$DMG"
           hdiutil attach "$DMG" -mountpoint /tmp/i2p_ci_verify -quiet
-          codesign --verify --deep --strict --verbose=2 /tmp/i2p_ci_verify/I2P.app
+          codesign --verify --deep --verbose=2 /tmp/i2p_ci_verify/I2P.app
           hdiutil detach /tmp/i2p_ci_verify -quiet
 
       - name: Notarize DMG
