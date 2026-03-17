@@ -265,18 +265,31 @@ fi
 
 rm -f "$DMG_NAME"
 
-create-dmg \
-    --volname "$APP_NAME" \
-    --volicon "build/I2P-volume.icns" \
-    --background "resources/I2P-background.tiff" \
-    --window-pos 200 120 \
-    --window-size 620 400 \
-    --icon-size 100 \
-    --icon "I2P.app" 150 185 \
-    --hide-extension "I2P.app" \
-    --app-drop-link 450 185 \
-    "$DMG_NAME" \
-    "I2P.app"
+if [ "$CI" = "true" ]; then
+    # CI mode: skip --background and --volicon (require Finder/GUI AppleScript)
+    create-dmg \
+        --volname "$APP_NAME" \
+        --window-pos 200 120 \
+        --window-size 620 400 \
+        --icon-size 100 \
+        --icon "I2P.app" 150 185 \
+        --app-drop-link 450 185 \
+        "$DMG_NAME" \
+        "I2P.app"
+else
+    create-dmg \
+        --volname "$APP_NAME" \
+        --volicon "build/I2P-volume.icns" \
+        --background "resources/I2P-background.tiff" \
+        --window-pos 200 120 \
+        --window-size 620 400 \
+        --icon-size 100 \
+        --icon "I2P.app" 150 185 \
+        --hide-extension "I2P.app" \
+        --app-drop-link 450 185 \
+        "$DMG_NAME" \
+        "I2P.app"
+fi
 
 echo ""
 echo "=== Build complete ==="

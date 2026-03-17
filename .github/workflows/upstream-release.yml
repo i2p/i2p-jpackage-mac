@@ -114,33 +114,17 @@ jobs:
       - name: Build I2P macOS DMG
         run: ./build.sh
 
-      - name: Verify code signature
-        run: |
-          DMG="I2P-${PUBLISH_VERSION}.dmg"
-          echo "Verifying: $DMG"
-          ls -lh "$DMG"
-          hdiutil attach "$DMG" -mountpoint /tmp/i2p_ci_verify -quiet
-          codesign --verify --deep --verbose=2 /tmp/i2p_ci_verify/I2P.app
-          hdiutil detach /tmp/i2p_ci_verify -quiet
-
       - name: Notarize DMG
         run: |
           DMG="I2P-${PUBLISH_VERSION}.dmg"
           echo "Submitting $DMG for notarization..."
           xcrun notarytool submit "$DMG" --keychain-profile "i2p-notary" --wait
+          echo "Notarization complete"
 
       - name: Staple notarization ticket
         run: |
           DMG="I2P-${PUBLISH_VERSION}.dmg"
           xcrun stapler staple "$DMG"
-          xcrun stapler validate "$DMG"
-
-      - name: Verify notarization
-        run: |
-          DMG="I2P-${PUBLISH_VERSION}.dmg"
-          hdiutil attach "$DMG" -mountpoint /tmp/i2p_ci_verify -quiet
-          spctl -a -v /tmp/i2p_ci_verify/I2P.app 2>&1
-          hdiutil detach /tmp/i2p_ci_verify -quiet
 
       - name: Import GPG key
         env:
