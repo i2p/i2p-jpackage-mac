@@ -121,7 +121,6 @@ jobs:
           ls -lh "$DMG"
           hdiutil attach "$DMG" -mountpoint /tmp/i2p_ci_verify -quiet
           codesign --verify --deep --strict --verbose=2 /tmp/i2p_ci_verify/I2P.app
-          spctl -a -v /tmp/i2p_ci_verify/I2P.app 2>&1
           hdiutil detach /tmp/i2p_ci_verify -quiet
 
       - name: Notarize DMG
@@ -135,6 +134,13 @@ jobs:
           DMG="I2P-${PUBLISH_VERSION}.dmg"
           xcrun stapler staple "$DMG"
           xcrun stapler validate "$DMG"
+
+      - name: Verify notarization
+        run: |
+          DMG="I2P-${PUBLISH_VERSION}.dmg"
+          hdiutil attach "$DMG" -mountpoint /tmp/i2p_ci_verify -quiet
+          spctl -a -v /tmp/i2p_ci_verify/I2P.app 2>&1
+          hdiutil detach /tmp/i2p_ci_verify -quiet
 
       - name: Import GPG key
         env:
